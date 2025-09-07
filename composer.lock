@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1ff62c9cdfe3a8203c0f4f6b152f6399",
+    "content-hash": "f7d95e0ae97195d9f22bea70d41ad899",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -5059,12 +5059,12 @@
             "version": "1.0.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Rangelcho1990/Redis.git",
+                "url": "https://github.com/Rangelcho1990/redis-toolkit.git",
                 "reference": "f2bf47abfdf7f6103a86d26fb734c9eca45df4ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Rangelcho1990/Redis/zipball/f2bf47abfdf7f6103a86d26fb734c9eca45df4ac",
+                "url": "https://api.github.com/repos/Rangelcho1990/redis-toolkit/zipball/f2bf47abfdf7f6103a86d26fb734c9eca45df4ac",
                 "reference": "f2bf47abfdf7f6103a86d26fb734c9eca45df4ac",
                 "shasum": ""
             },
@@ -5141,8 +5141,8 @@
             ],
             "description": "Framework-agnostic Redis service with Symfony & Laravel integrations",
             "support": {
-                "source": "https://github.com/Rangelcho1990/Redis/tree/1.0.2",
-                "issues": "https://github.com/Rangelcho1990/Redis/issues"
+                "source": "https://github.com/Rangelcho1990/redis-toolkit/tree/1.0.2",
+                "issues": "https://github.com/Rangelcho1990/redis-toolkit/issues"
             },
             "time": "2025-09-07T13:38:25+00:00"
         },
