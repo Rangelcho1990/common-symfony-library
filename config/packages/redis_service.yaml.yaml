@@ -1,0 +1,3 @@
+# config/packages/redis_service.yaml
+redis_service:
+    dsn: '%env(REDIS_DSN)%'
