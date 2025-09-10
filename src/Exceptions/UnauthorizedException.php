@@ -6,9 +6,9 @@ namespace CSL\Exceptions;
 
 class UnauthorizedException extends CslAbstractException
 {
-    /** @var int $code */
+    /** @var int */
     protected $code = 401;
 
-    /** @var string $message */
+    /** @var string */
     protected $message = 'Unauthorized';
 }

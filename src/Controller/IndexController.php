@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CSL\Controller;
 
+use RedisService\Core\Container\RedisContainer;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
-use RedisService\Core\Container\RedisContainer;
 
 class IndexController extends CslAbstractController
 {

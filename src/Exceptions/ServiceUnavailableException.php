@@ -6,9 +6,9 @@ namespace CSL\Exceptions;
 
 class ServiceUnavailableException extends CslAbstractException
 {
-    /** @var int $code */
+    /** @var int */
     protected $code = 503;
 
-    /** @var string $message */
+    /** @var string */
     protected $message = 'Service Unavailable';
 }

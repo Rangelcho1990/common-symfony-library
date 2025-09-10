@@ -6,9 +6,9 @@ namespace CSL\Exceptions;
 
 class BadRequestException extends CslAbstractException
 {
-    /** @var int $code */
+    /** @var int */
     protected $code = 400;
 
-    /** @var string $message */
+    /** @var string */
     protected $message = 'Bad Request';
 }

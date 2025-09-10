@@ -12,7 +12,6 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 final class UsersRepository extends CslAbstractRepository
 {
-
     public function __construct(EntityManagerInterface $entityManager)
     {
         parent::__construct($entityManager, Users::class);

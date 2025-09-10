@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityRepository;
 
 /**
  * @template T of object
+ *
  * @extends EntityRepository<T>
  */
 abstract class CslAbstractRepository extends EntityRepository

@@ -6,12 +6,12 @@ namespace CSL\Exceptions;
 
 class CslAbstractException extends \Exception
 {
-    /** @var string $message */
+    /** @var string */
     protected $message = 'Unknown error';
 
-    public function __construct(string $message = '', int $code = 0, \Exception $previous = null)
+    public function __construct(string $message = '', int $code = 0, ?\Exception $previous = null)
     {
-        if(!empty($message)) {
+        if (!empty($message)) {
             $this->message = $message;
         }
 
@@ -25,7 +25,7 @@ class CslAbstractException extends \Exception
     {
         return [
             'message' => $this->message,
-            'code' => $this->code,
+            'code'    => $this->code,
         ];
     }
 }

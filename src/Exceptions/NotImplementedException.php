@@ -6,9 +6,9 @@ namespace CSL\Exceptions;
 
 class NotImplementedException extends CslAbstractException
 {
-    /** @var int $code */
+    /** @var int */
     protected $code = 501;
 
-    /** @var string $message */
+    /** @var string */
     protected $message = 'Not Implemented';
 }
