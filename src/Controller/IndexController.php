@@ -2,12 +2,11 @@
 
 namespace CSL\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
-
 use RedisService\Core\Container\RedisContainer;
 
-class IndexController extends AbstractController
+class IndexController extends CslAbstractController
 {
     private RedisContainer $redisContainer;
 
@@ -17,7 +16,7 @@ class IndexController extends AbstractController
     }
 
     #[Route('/list', name: 'list', methods: 'GET')]
-    public function list()
+    public function list(): JsonResponse
     {
         return $this->json([
             'Redis connection' => $this->redisContainer->isConnected(),
