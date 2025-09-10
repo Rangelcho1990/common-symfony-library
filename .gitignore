@@ -55,6 +55,7 @@
 
 .php-cs-fixer.cache
 .phpunit.result.cache
+.phpunit.cache
 
 ###> phpstan/phpstan ###
 phpstan.neon

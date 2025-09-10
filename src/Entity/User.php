@@ -14,7 +14,7 @@ use Doctrine\ORM\Mapping\Table;
 
 #[Table(name: 'users')]
 #[Entity(repositoryClass: UsersRepository::class)]
-class Users
+class User
 {
     #[Id]
     #[Column(type: 'integer')]
@@ -29,9 +29,11 @@ class Users
         return $this->id;
     }
 
-    public function setId(int $id): void
+    public function setId(int $id): User
     {
         $this->id = $id;
+
+        return $this;
     }
 
     public function getName(): string
@@ -39,8 +41,10 @@ class Users
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(string $name): User
     {
         $this->name = $name;
+
+        return $this;
     }
 }

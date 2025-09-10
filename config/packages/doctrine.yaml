@@ -22,7 +22,7 @@ doctrine:
                 type: attribute
                 is_bundle: false
                 dir: '%kernel.project_dir%/src/Entity'
-                prefix: 'Csl\Entity'
+                prefix: 'CSL\Entity'
                 alias: App
         controller_resolver:
             auto_mapping: false
@@ -30,8 +30,7 @@ doctrine:
 when@test:
     doctrine:
         dbal:
-            # "TEST_TOKEN" is typically set by ParaTest
-            dbname_suffix: '_test%env(default::TEST_TOKEN)%'
+            url: '%env(resolve:DATABASE_URL)%'
 
 when@prod:
     doctrine:
