@@ -17,6 +17,9 @@
         "symfony/yaml": "7.3.*",
         "uzunov-labs/redis-service": "1.0.2"
     },
+    "require-dev": {
+        "phpstan/phpstan": "^2.1"
+    },
     "repositories": [
         {
             "type": "vcs",
@@ -63,14 +66,15 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "phpstan": "vendor/bin/phpstan analyse"
     },
     "conflict": {
         "symfony/symfony": "*"
     },
     "extra": {
         "symfony": {
-            "allow-contrib": false,
+            "allow-contrib": true,
             "require": "7.3.*",
             "docker": false
         }

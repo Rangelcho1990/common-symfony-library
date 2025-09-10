@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CSL\Exceptions;
 
-use Doctrine\ORM\EntityManagerInterface;
-
 class CslAbstractException extends \Exception
 {
     /** @var string $message */
@@ -20,6 +18,9 @@ class CslAbstractException extends \Exception
         parent::__construct($message, $code, $previous);
     }
 
+    /**
+     * @return array<string, string|int>
+     */
     public function toArray(): array
     {
         return [
