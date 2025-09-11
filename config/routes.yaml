@@ -1,5 +1,5 @@
 controllers:
     resource:
-        path: ../src/Controller/
-        namespace: CSL\Controller
+        path: ../src/Endpoints/
+        namespace: CSL\Endpoints
     type: attribute

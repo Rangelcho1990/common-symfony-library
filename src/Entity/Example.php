@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CSL\Entity;
 
-use CSL\Repository\UsersRepository;
+use CSL\Repository\ExampleRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
@@ -12,9 +12,9 @@ use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\Table;
 
-#[Table(name: 'users')]
-#[Entity(repositoryClass: UsersRepository::class)]
-class User
+#[Table(name: 'examples')]
+#[Entity(repositoryClass: ExampleRepository::class)]
+class Example
 {
     #[Id]
     #[Column(type: 'integer')]
@@ -29,7 +29,7 @@ class User
         return $this->id;
     }
 
-    public function setId(int $id): User
+    public function setId(int $id): Example
     {
         $this->id = $id;
 
@@ -41,7 +41,7 @@ class User
         return $this->name;
     }
 
-    public function setName(string $name): User
+    public function setName(string $name): Example
     {
         $this->name = $name;
 
