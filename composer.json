@@ -78,7 +78,8 @@
         "code-fix": [
             "@cs-fix",
             "@phpstan"
-        ]
+        ],
+        "test": "vendor/bin/phpunit --testdox"
     },
     "conflict": {
         "symfony/symfony": "*"
