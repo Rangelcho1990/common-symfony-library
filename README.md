@@ -12,6 +12,7 @@
 4. Run migrations with `composer db-migrate:next`
 5. Run `symfony serve`
 6. Open `http://127.0.0.1:8000/`
+7. Profiler URL - https://127.0.0.1:8000/_profiler/
 
 ## Examples
 1. User Entity
