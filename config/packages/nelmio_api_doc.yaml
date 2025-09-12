@@ -1,0 +1,24 @@
+nelmio_api_doc:
+    media_types:
+        - json
+    # UI configuration options
+    html_config:
+        swagger_ui_config: []
+    # Filter the routes that are documented
+    documentation:
+        info:
+            title: Common Symfony library
+            description: Common Symfony library
+            version: 1.0.0
+            x-build: #CommitHash
+    #        components:
+    #            securitySchemes:
+    #                Bearer:
+    #                    type: http
+    #                    scheme: bearer
+    #                    bearerFormat: JWT
+    #        security:
+    #            - Bearer: []
+    areas:
+        default:
+            disable_default_routes: true
