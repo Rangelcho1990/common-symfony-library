@@ -1,0 +1,34 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CSL\DTO\Logger;
+
+use CSL\Exceptions\NotImplementedException;
+use CSL\Module\LoggerBundle\CslLogger;
+use CSL\Module\LoggerBundle\CslLoggerFactory;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+
+class CslLoggerDTO
+{
+    private CslLogger $cslLogger;
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws NotImplementedException
+     */
+    public function __construct(
+        CslLoggerFactory $loggerFactory,
+        CslLoggerFactoryDTO $cslLoggerFactoryDTO,
+    ) {
+        $logger          = $loggerFactory->createLogger($cslLoggerFactoryDTO);
+        $this->cslLogger = new CslLogger($logger);
+    }
+
+    public function getCslLogger(): CslLogger
+    {
+        return $this->cslLogger;
+    }
+}
