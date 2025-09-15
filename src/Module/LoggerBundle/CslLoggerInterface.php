@@ -6,5 +6,7 @@ namespace CSL\Module\LoggerBundle;
 
 interface CslLoggerInterface
 {
+    public function addContext(array $context): void;
 
+    public function getContext(): array;
 }
