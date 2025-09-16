@@ -6,7 +6,9 @@ namespace CSL\Module\LoggerBundle;
 
 use CSL\DTO\Logger\CslLoggerFactoryDTO;
 use CSL\Exceptions\NotImplementedException;
+use CSL\Module\LoggerBundle\Loggers\CslHandlerInterface;
 use Monolog\ErrorHandler;
+use Monolog\Logger as MonologLogger;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
@@ -24,6 +26,10 @@ class CslLoggerFactory
             $loggerConfiguration = $cslLoggerFactoryDTO->getParameterBag()->get('logger');
         } catch (\InvalidArgumentException $exception) {
             throw new \InvalidArgumentException($exception->getMessage());
+        }
+
+        if (false === is_array($loggerConfiguration)) {
+            throw new \InvalidArgumentException('Wrong format for "configuration"!');
         }
 
         if (empty($loggerConfiguration['format'])) {
@@ -50,20 +56,23 @@ class CslLoggerFactory
                 $handlerParams['name']   = $handler;
                 $handlerParams['format'] = $loggerConfiguration['format'];
 
-                $handlersInstance[] = $container->get($handlerClass)->getHandler($handlerParams);
+                /** @var CslHandlerInterface $service */
+                $service            = $container->get($handlerClass);
+                $handlersInstance[] = $service->getHandler($handlerParams);
 
-                unset($handlerParams, $handlerClass);
+                unset($handlerParams, $handlerClass, $service);
             } catch (\Exception $exception) {
                 throw new NotImplementedException($exception->getMessage());
             }
         }
 
-        $loggerInterface = $cslLoggerFactoryDTO->getLoggerInterface();
-        $loggerInterface->setHandlers($handlersInstance);
+        /** @var MonologLogger $monologLogger */
+        $monologLogger = $cslLoggerFactoryDTO->getLoggerInterface();
+        $monologLogger->setHandlers($handlersInstance);
         unset($loggerConfiguration, $handlersInstance);
 
-        ErrorHandler::register($loggerInterface);
+        ErrorHandler::register($monologLogger);
 
-        return $loggerInterface;
+        return $monologLogger;
     }
 }

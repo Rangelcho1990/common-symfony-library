@@ -8,5 +8,8 @@ use Monolog\Handler\HandlerInterface;
 
 interface CslHandlerInterface
 {
+    /**
+     * @param array<string, string> $handlerParams
+     */
     public function getHandler(array $handlerParams): HandlerInterface;
 }
