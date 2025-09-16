@@ -14,15 +14,22 @@ use Psr\Log\LoggerInterface;
 
 class CslLoggerFactory
 {
+    private CslLoggerFactoryDTO $cslLoggerFactoryDTO;
+
+    public function __construct(CslLoggerFactoryDTO $cslLoggerFactoryDTO)
+    {
+        $this->cslLoggerFactoryDTO = $cslLoggerFactoryDTO;
+    }
+
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws NotImplementedException
      */
-    public function createLogger(CslLoggerFactoryDTO $cslLoggerFactoryDTO): LoggerInterface
+    public function createLogger(): LoggerInterface
     {
         try {
-            $loggerConfiguration = $cslLoggerFactoryDTO->getParameterBag()->get('logger');
+            $loggerConfiguration = $this->cslLoggerFactoryDTO->getParameterBag()->get('logger');
         } catch (\InvalidArgumentException $exception) {
             throw new \InvalidArgumentException($exception->getMessage());
         }
@@ -40,7 +47,7 @@ class CslLoggerFactory
         }
 
         $handlersInstance = [];
-        $container        = $cslLoggerFactoryDTO->getContainer();
+        $container        = $this->cslLoggerFactoryDTO->getContainer();
 
         foreach ($loggerConfiguration['handlers'] as $handler => $handlerParams) {
             $handlerClass = 'Csl'.$handler;
@@ -65,7 +72,7 @@ class CslLoggerFactory
             }
         }
 
-        $logger = $cslLoggerFactoryDTO->getMonologLogger();
+        $logger = $this->cslLoggerFactoryDTO->getMonologLogger();
         $logger->setHandlers($handlersInstance);
         unset($loggerConfiguration, $handlersInstance);
 

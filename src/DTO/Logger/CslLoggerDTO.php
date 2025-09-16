@@ -19,12 +19,11 @@ class CslLoggerDTO
      * @throws NotFoundExceptionInterface
      * @throws NotImplementedException
      */
-    public function __construct(
-        CslLoggerFactory $loggerFactory,
-        CslLoggerFactoryDTO $cslLoggerFactoryDTO,
-    ) {
-        $logger          = $loggerFactory->createLogger($cslLoggerFactoryDTO);
-        $this->cslLogger = new CslLogger($logger);
+    public function __construct(CslLoggerFactory $loggerFactory)
+    {
+        $this->cslLogger = new CslLogger(
+            $loggerFactory->createLogger()
+        );
     }
 
     public function getCslLogger(): CslLogger
