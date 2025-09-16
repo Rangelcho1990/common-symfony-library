@@ -8,7 +8,6 @@ use CSL\DTO\Logger\CslLoggerFactoryDTO;
 use CSL\Exceptions\NotImplementedException;
 use CSL\Module\LoggerBundle\Loggers\CslHandlerInterface;
 use Monolog\ErrorHandler;
-use Monolog\Logger as MonologLogger;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
@@ -66,13 +65,12 @@ class CslLoggerFactory
             }
         }
 
-        /** @var MonologLogger $monologLogger */
-        $monologLogger = $cslLoggerFactoryDTO->getLoggerInterface();
-        $monologLogger->setHandlers($handlersInstance);
+        $logger = $cslLoggerFactoryDTO->getMonologLogger();
+        $logger->setHandlers($handlersInstance);
         unset($loggerConfiguration, $handlersInstance);
 
-        ErrorHandler::register($monologLogger);
+        ErrorHandler::register($logger);
 
-        return $monologLogger;
+        return $logger;
     }
 }
