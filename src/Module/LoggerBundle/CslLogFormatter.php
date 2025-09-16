@@ -27,41 +27,42 @@ class CslLogFormatter extends LineFormatter
     {
         $record = $record->toArray();
 
+        $responseBody = $other = $requestBody = '';
+        if (isset($record['context']['request']) && is_string($record['context']['request'])) {
+            $requestBody = $this->replaceDoubleQuoteAndStripSlashes($record['context']['request']);
+        }
+
+        if (isset($record['context']['other']) && is_string($record['context']['other'])) {
+            $other = $this->replaceDoubleQuoteAndStripSlashes($record['context']['other']);
+        }
+
+        if (isset($record['context']['response']) && is_string($record['context']['response'])) {
+            $responseBody = $this->replaceDoubleQuoteAndStripSlashes($record['context']['response']);
+        }
+
         return json_encode((object) [
             'timestamp'       => $record['datetime'],
             'level'           => $record['level_name'],
             'messageTemplate' => $record['context']['messageTemplate'] ?? '',
             'additional_data' => (object) [
                 'requestUid'             => $record['context']['requestUid'] ?? '',
-                'requestBodyStringified' => isset($record['context']['request'])
-                    ? (is_array($record['context']['request'])
-                        ? $this->replaceDoubleQuoteAndStripSlashes(json_encode($record['context']['request']))
-                        : $this->replaceDoubleQuoteAndStripSlashes($record['context']['request']))
-                    : '',
-                'resource' => $record['context']['resource'] ?? '',
-                'method'   => $record['context']['method']   ?? '',
-                'ip'       => $record['context']['ip']       ?? '',
-                'other'    => isset($record['context']['other'])
-                    ? $this->replaceDoubleQuoteAndStripSlashes(
-                        json_encode($record['context']['other'], JSON_FORCE_OBJECT)
-                    )
-                    : '',
-                'responseBodyStringified' => isset($record['context']['response'])
-                    ? (is_array($record['context']['response'])
-                        ? json_encode($record['context']['response'])
-                        : $record['context']['response'])
-                    : '',
-                'message'    => $record['context']['message']    ?? '',
-                'file'       => $record['context']['file']       ?? '',
-                'line'       => $record['context']['line']       ?? '',
-                'stackTrace' => $record['context']['stackTrace'] ?? '',
-                'code'       => $record['context']['code']       ?? '',
+                'requestBody'            => $requestBody,
+                'resource'               => $record['context']['resource'] ?? '',
+                'method'                 => $record['context']['method']   ?? '',
+                'ip'                     => $record['context']['ip']       ?? '',
+                'other'                  => $other,
+                'responseBody'           => $responseBody,
+                'message'                => $record['context']['message']    ?? '',
+                'file'                   => $record['context']['file']       ?? '',
+                'line'                   => $record['context']['line']       ?? '',
+                'stackTrace'             => $record['context']['stackTrace'] ?? '',
+                'code'                   => $record['context']['code']       ?? '',
             ],
         ]).PHP_EOL;
     }
 
-    private function replaceDoubleQuoteAndStripSlashes($str): string
+    private function replaceDoubleQuoteAndStripSlashes(string $jsonData): string
     {
-        return stripslashes(str_replace('"', "'", $str));
+        return stripslashes(str_replace('"', "'", $jsonData));
     }
 }

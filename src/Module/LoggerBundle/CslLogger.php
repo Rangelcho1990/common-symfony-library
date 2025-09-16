@@ -10,6 +10,7 @@ final class CslLogger implements CslLoggerInterface
 {
     public LoggerInterface $logger;
 
+    /** @var array<string, mixed> */
     private array $context = [];
 
     public function __construct(LoggerInterface $logger)
@@ -17,6 +18,9 @@ final class CslLogger implements CslLoggerInterface
         $this->logger = $logger;
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function addContext(array $context): void
     {
         if (!empty($context)) {
@@ -24,6 +28,9 @@ final class CslLogger implements CslLoggerInterface
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getContext(): array
     {
         return $this->context;

@@ -27,12 +27,14 @@ class CslErrorSubscriber extends CslAbstractSubscriber
             $this->cslLogger->getContext()
         );
 
+        $responseData = json_encode([
+            'message' => $event->getThrowable()->getMessage(),
+            'code'    => Response::HTTP_INTERNAL_SERVER_ERROR,
+        ]);
+
         $event->setResponse(
             new Response(
-                json_encode([
-                    'message' => $event->getThrowable()->getMessage(),
-                    'code'    => Response::HTTP_INTERNAL_SERVER_ERROR,
-                ]),
+                false === $responseData ? null : $responseData,
                 Response::HTTP_INTERNAL_SERVER_ERROR,
                 ['content-type' => 'application/json'],
             )
