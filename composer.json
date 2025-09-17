@@ -8,6 +8,7 @@
         "doctrine/doctrine-bundle": "^2.16",
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.5",
+        "graylog2/gelf-php": "^2.0",
         "monolog/monolog": "^3.9",
         "nelmio/api-doc-bundle": "^5.6",
         "ramsey/uuid-doctrine": "^2.1",

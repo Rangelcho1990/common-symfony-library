@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CSL\Module\LoggerBundle;
+namespace CSL\Module\LoggerBundle\LoggerFormatters;
 
 use Monolog\Formatter\LineFormatter;
 use Monolog\LogRecord;
