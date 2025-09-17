@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CSL\Module\LoggerBundle;
 
 use CSL\DTO\Logger\CslLoggerFactoryDTO;
+use CSL\DTO\Logger\LoggeConfigurationDTO;
 use CSL\Exceptions\NotImplementedException;
 use CSL\Module\LoggerBundle\Loggers\CslHandlerInterface;
 use Monolog\ErrorHandler;
@@ -29,44 +30,42 @@ class CslLoggerFactory
     public function createLogger(): LoggerInterface
     {
         try {
-            $loggerConfiguration = $this->cslLoggerFactoryDTO->getParameterBag()->get('logger');
+            /**
+             * @var array{
+             *    string: array{
+             *      level: int,
+             *      format: string,
+             *      host: string,
+             *      port: int|null,
+             *      source: string|null,
+             *      ignoreConnectionErrors: bool|null
+             *    }
+             * } $handlers
+             */
+            $handlers = $this->cslLoggerFactoryDTO->getParameterBag()->get('handlers');
         } catch (\InvalidArgumentException $exception) {
             throw new \InvalidArgumentException($exception->getMessage());
-        }
-
-        if (false === is_array($loggerConfiguration)) {
-            throw new \InvalidArgumentException('Wrong format for "configuration"!');
-        }
-
-        if (empty($loggerConfiguration['format'])) {
-            throw new \InvalidArgumentException('Missing logger "format"!');
-        }
-
-        if (empty($loggerConfiguration['handlers'])) {
-            throw new \InvalidArgumentException('Missing logger "handlers"!');
         }
 
         $handlersInstance = [];
         $container        = $this->cslLoggerFactoryDTO->getContainer();
 
-        foreach ($loggerConfiguration['handlers'] as $handler => $handlerParams) {
-            $handlerClass = 'Csl'.$handler;
+        foreach ($handlers as $handler => $handlerParams) {
+            $loggerConfiguration = new LoggeConfigurationDTO();
+            $loggerConfiguration->prepareConfigurationData($handler, $handlerParams);
 
-            $handlerController = 'CSL\\Module\\LoggerBundle\\Loggers\\'.$handlerClass;
-            if (!class_exists($handlerController)) {
-                throw new \InvalidArgumentException('Unknown handler "'.$handlerClass.'"');
+            if (!class_exists($loggerConfiguration->getHandlerNamespace())) {
+                throw new NotImplementedException('Unknown handler "'.$loggerConfiguration->getHandlerClass().'"');
             }
-            unset($handlerController);
 
             try {
-                $handlerParams['name']   = $handler;
-                $handlerParams['format'] = $loggerConfiguration['format'];
+                /** @var CslHandlerInterface $handlerClass */
+                $handlerClass = $container->get($loggerConfiguration->getHandlerClass());
+                $handlerClass->setLoggerConfiguration($loggerConfiguration);
 
-                /** @var CslHandlerInterface $service */
-                $service            = $container->get($handlerClass);
-                $handlersInstance[] = $service->getHandler($handlerParams);
+                $handlersInstance[] = $handlerClass->getHandler();
 
-                unset($handlerParams, $handlerClass, $service);
+                unset($handlerClass);
             } catch (\Exception $exception) {
                 throw new NotImplementedException($exception->getMessage());
             }
