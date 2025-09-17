@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace CSL\Module\LoggerBundle\Loggers;
 
-use CSL\DTO\Logger\LoggeConfigurationDTO;
+use CSL\DTO\Logger\LoggerConfigurationDTO;
 use Monolog\Level;
 
 abstract class AbstractHandlerBuilder implements CslHandlerInterface
 {
-    protected LoggeConfigurationDTO $loggerConfiguration;
+    protected LoggerConfigurationDTO $loggerConfiguration;
 
-    public function setLoggerConfiguration(LoggeConfigurationDTO $loggerConfiguration): void
+    public function setLoggerConfiguration(LoggerConfigurationDTO $loggerConfiguration): void
     {
         $this->loggerConfiguration = $loggerConfiguration;
     }

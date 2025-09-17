@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CSL\DTO\Logger;
 
-class LoggeConfigurationDTO
+class LoggerConfigurationDTO
 {
     private const PREFIX_NAME       = 'Csl';
     private const PREFIX_CONTROLLER = 'CSL\\Module\\LoggerBundle\\Loggers\\';

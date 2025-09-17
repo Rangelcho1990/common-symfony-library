@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CSL\Module\LoggerBundle;
 
 use CSL\DTO\Logger\CslLoggerFactoryDTO;
-use CSL\DTO\Logger\LoggeConfigurationDTO;
+use CSL\DTO\Logger\LoggerConfigurationDTO;
 use CSL\Exceptions\NotImplementedException;
 use CSL\Module\LoggerBundle\Loggers\CslHandlerInterface;
 use Monolog\ErrorHandler;
@@ -51,7 +51,7 @@ class CslLoggerFactory
         $container        = $this->cslLoggerFactoryDTO->getContainer();
 
         foreach ($handlers as $handler => $handlerParams) {
-            $loggerConfiguration = new LoggeConfigurationDTO();
+            $loggerConfiguration = new LoggerConfigurationDTO();
             $loggerConfiguration->prepareConfigurationData($handler, $handlerParams);
 
             if (!class_exists($loggerConfiguration->getHandlerNamespace())) {
