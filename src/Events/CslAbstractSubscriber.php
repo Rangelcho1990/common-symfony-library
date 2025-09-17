@@ -20,7 +20,7 @@ abstract class CslAbstractSubscriber implements EventSubscriberInterface
     public function __construct(CslEventsSubscriberDTO $cslEventsSubscriberDTO, CslLoggerDTO $cslLoggerDTO)
     {
         $this->cslEventsSubscriberDTO = $cslEventsSubscriberDTO;
-        $this->cslLogger              = $cslLoggerDTO->getCslLogger();
+        $this->cslLogger = $cslLoggerDTO->getCslLogger();
 
         $this->requestUid = Uuid::uuid1();
     }

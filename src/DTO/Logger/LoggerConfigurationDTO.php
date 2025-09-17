@@ -6,7 +6,7 @@ namespace CSL\DTO\Logger;
 
 class LoggerConfigurationDTO
 {
-    private const PREFIX_NAME       = 'Csl';
+    private const PREFIX_NAME = 'Csl';
     private const PREFIX_CONTROLLER = 'CSL\\Module\\LoggerBundle\\Loggers\\';
 
     private string $handlerClass;
@@ -14,8 +14,8 @@ class LoggerConfigurationDTO
     private int $level;
     private string $format;
     private string $host;
-    private ?int $port                    = null;
-    private ?string $source               = null;
+    private ?int $port = null;
+    private ?string $source = null;
     private ?bool $ignoreConnectionErrors = null;
 
     /**

@@ -17,7 +17,7 @@ class CslEventsSubscriberDTO
         ValidatorInterface $validator,
     ) {
         $this->parameterBag = $parameterBag;
-        $this->validator    = $validator;
+        $this->validator = $validator;
     }
 
     public function getParameterBag(): ContainerBagInterface

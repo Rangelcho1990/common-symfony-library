@@ -14,7 +14,7 @@ class GelfHandlerFormatter extends GelfMessageFormatter
     {
         $recordData = $record->toArray();
 
-        $data            = $recordData['context'];
+        $data = $recordData['context'];
         $data['message'] = $recordData['message'];
 
         $text = json_encode($data);
@@ -23,7 +23,7 @@ class GelfHandlerFormatter extends GelfMessageFormatter
         }
 
         $messageText = substr($text, 0, $this->maxLength);
-        $message     = parent::format($record);
+        $message = parent::format($record);
         $message->setShortMessage($messageText);
         unset($recordData, $data, $text, $messageText);
 

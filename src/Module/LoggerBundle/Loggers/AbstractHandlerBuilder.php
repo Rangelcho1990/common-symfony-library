@@ -19,13 +19,13 @@ abstract class AbstractHandlerBuilder implements CslHandlerInterface
     protected function getLogLevel(): Level
     {
         return match ($this->loggerConfiguration->getLevel()) {
-            100     => Level::Debug,
-            200     => Level::Info,
-            250     => Level::Notice,
-            300     => Level::Warning,
-            500     => Level::Critical,
-            550     => Level::Alert,
-            600     => Level::Emergency,
+            100 => Level::Debug,
+            200 => Level::Info,
+            250 => Level::Notice,
+            300 => Level::Warning,
+            500 => Level::Critical,
+            550 => Level::Alert,
+            600 => Level::Emergency,
             default => Level::Error,
         };
     }
