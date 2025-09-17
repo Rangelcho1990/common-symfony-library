@@ -14,7 +14,7 @@ use Monolog\Handler\HandlerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
 #[AsAlias(id: 'CslGelfHandlerTcp', public: true)]
-class CslGelfHandlerTcp extends AbstractHandlerBuilder
+final class CslGelfHandlerTcp extends AbstractHandlerBuilder
 {
     /**
      * @throws ParameterNotFoundException
