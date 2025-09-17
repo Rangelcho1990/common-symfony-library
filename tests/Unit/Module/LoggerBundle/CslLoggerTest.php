@@ -39,7 +39,7 @@ class CslLoggerTest extends TestCase
     public function testGetContextSuccessWithData(): void
     {
         $cslLogger = new CslLogger($this->logger);
-        $data      = [
+        $data = [
             'foo' => 'bar',
             'bar' => 'baz',
         ];

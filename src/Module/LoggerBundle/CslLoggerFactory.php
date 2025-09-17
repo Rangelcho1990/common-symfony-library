@@ -48,7 +48,7 @@ class CslLoggerFactory
         }
 
         $handlersInstance = [];
-        $container        = $this->cslLoggerFactoryDTO->getContainer();
+        $container = $this->cslLoggerFactoryDTO->getContainer();
 
         foreach ($handlers as $handler => $handlerParams) {
             $loggerConfiguration = new LoggerConfigurationDTO();

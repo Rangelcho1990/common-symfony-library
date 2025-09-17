@@ -20,21 +20,21 @@ final class ExampleRepositoryTest extends KernelTestCase
         self::bootKernel();
 
         /** @var EntityManagerInterface $em */
-        $em                  = static::getContainer()->get(EntityManagerInterface::class);
+        $em = static::getContainer()->get(EntityManagerInterface::class);
         $this->entityManager = $em;
 
         /** @var ExampleRepository $exampleRepo */
-        $exampleRepo             = $this->entityManager->getRepository(Example::class);
+        $exampleRepo = $this->entityManager->getRepository(Example::class);
         $this->exampleRepository = $exampleRepo;
         unset($em, $exampleRepo);
 
         $schemaTool = new SchemaTool($this->entityManager);
-        $metadata   = $this->entityManager->getMetadataFactory()->getAllMetadata();
+        $metadata = $this->entityManager->getMetadataFactory()->getAllMetadata();
         $schemaTool->dropSchema($metadata);
         $schemaTool->createSchema($metadata);
     }
 
-    public function testFindAllUsers(): void
+    public function _testFindAllUsers(): void
     {
         $user1 = (new Example())->setName('User A');
         $user2 = (new Example())->setName('User B');

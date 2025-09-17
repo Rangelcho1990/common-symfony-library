@@ -19,9 +19,9 @@ class CslLoggerFactoryDTO
         ContainerBagInterface $parameterBag,
         ContainerInterface $container,
     ) {
-        $this->logger       = $monologLogger;
+        $this->logger = $monologLogger;
         $this->parameterBag = $parameterBag;
-        $this->container    = $container;
+        $this->container = $container;
     }
 
     public function getMonologLogger(): Logger

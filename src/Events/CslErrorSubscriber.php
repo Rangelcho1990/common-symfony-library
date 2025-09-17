@@ -14,12 +14,12 @@ class CslErrorSubscriber extends CslAbstractSubscriber
     {
         $this->cslLogger->addContext([
             'messageTemplate' => 'Error',
-            'resource'        => $event->getRequest()->getRequestUri(),
-            'method'          => $event->getRequest()->getMethod(),
-            'message'         => $event->getThrowable()->getMessage(),
-            'code'            => $event->getThrowable()->getCode(),
-            'stackTrace'      => $event->getThrowable()->getTrace(),
-            'requestUid'      => $this->requestUid,
+            'resource' => $event->getRequest()->getRequestUri(),
+            'method' => $event->getRequest()->getMethod(),
+            'message' => $event->getThrowable()->getMessage(),
+            'code' => $event->getThrowable()->getCode(),
+            'stackTrace' => $event->getThrowable()->getTrace(),
+            'requestUid' => $this->requestUid,
         ]);
 
         $this->cslLogger->logger->error(
@@ -29,7 +29,7 @@ class CslErrorSubscriber extends CslAbstractSubscriber
 
         $responseData = json_encode([
             'message' => $event->getThrowable()->getMessage(),
-            'code'    => Response::HTTP_INTERNAL_SERVER_ERROR,
+            'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
         ]);
 
         $event->setResponse(

@@ -41,22 +41,22 @@ class CslLogFormatter extends LineFormatter
         }
 
         return json_encode((object) [
-            'timestamp'       => $record['datetime'],
-            'level'           => $record['level_name'],
+            'timestamp' => $record['datetime'],
+            'level' => $record['level_name'],
             'messageTemplate' => $record['context']['messageTemplate'] ?? '',
             'additional_data' => (object) [
-                'requestUid'             => $record['context']['requestUid'] ?? '',
-                'requestBody'            => $requestBody,
-                'resource'               => $record['context']['resource'] ?? '',
-                'method'                 => $record['context']['method']   ?? '',
-                'ip'                     => $record['context']['ip']       ?? '',
-                'other'                  => $other,
-                'responseBody'           => $responseBody,
-                'message'                => $record['context']['message']    ?? '',
-                'file'                   => $record['context']['file']       ?? '',
-                'line'                   => $record['context']['line']       ?? '',
-                'stackTrace'             => $record['context']['stackTrace'] ?? '',
-                'code'                   => $record['context']['code']       ?? '',
+                'requestUid' => $record['context']['requestUid'] ?? '',
+                'requestBody' => $requestBody,
+                'resource' => $record['context']['resource'] ?? '',
+                'method' => $record['context']['method'] ?? '',
+                'ip' => $record['context']['ip'] ?? '',
+                'other' => $other,
+                'responseBody' => $responseBody,
+                'message' => $record['context']['message'] ?? '',
+                'file' => $record['context']['file'] ?? '',
+                'line' => $record['context']['line'] ?? '',
+                'stackTrace' => $record['context']['stackTrace'] ?? '',
+                'code' => $record['context']['code'] ?? '',
             ],
         ]).PHP_EOL;
     }

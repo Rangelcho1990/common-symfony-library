@@ -21,10 +21,13 @@ class CslStreamHandlerTest extends TestCase
     protected function setUp(): void
     {
         $this->loggerConfigurationDTO = new LoggerConfigurationDTO();
-        $data                         = [
-            'host'   => 'php://stdout',
-            'level'  => 100,
+        $data = [
+            'level' => 100,
             'format' => 'test',
+            'host' => 'php://stdout',
+            'port' => null,
+            'source' => null,
+            'ignoreConnectionErrors' => null,
         ];
         $this->loggerConfigurationDTO->prepareConfigurationData('StreamHandler', $data);
 
@@ -62,7 +65,7 @@ class CslStreamHandlerTest extends TestCase
         $this->assertSame($streamHandler, $streamHandlerSetup);
     }
 
-    public function testCslStreamHandlerLogIsHandling(): void
+    public function testValidateCslStreamHandlerLogIsHandling(): void
     {
         $cslStreamHandler = new CslStreamHandler();
         $cslStreamHandler->setLoggerConfiguration($this->loggerConfigurationDTO);
@@ -71,14 +74,23 @@ class CslStreamHandlerTest extends TestCase
         $this->assertTrue($streamHandler->isHandling($this->logRecord));
     }
 
-    public function testCslStreamHandlerLogHandleBatch(): void
+    public function testValidateCslStreamHandlerLogHandleBatch(): void
     {
         $cslStreamHandler = new CslStreamHandler();
         $cslStreamHandler->setLoggerConfiguration($this->loggerConfigurationDTO);
         $streamHandler = $cslStreamHandler->getHandler();
-        $result        = $streamHandler->handleBatch([$this->logRecord, $this->logRecord]);
+        $streamHandler->handleBatch([$this->logRecord, $this->logRecord]);
 
-        $this->assertNull($result);
-        unset($result);
+        $this->addToAssertionCount(1);
+    }
+
+    public function testValidateCslStreamHandlerLogHandle(): void
+    {
+        $cslStreamHandler = new CslStreamHandler();
+        $cslStreamHandler->setLoggerConfiguration($this->loggerConfigurationDTO);
+        $streamHandler = $cslStreamHandler->getHandler();
+        $streamHandlerResponse = $streamHandler->handle($this->logRecord);
+
+        $this->assertFalse($streamHandlerResponse); // check handle method for more description
     }
 }
