@@ -17,7 +17,7 @@ class CslLoggerTest extends TestCase
         $this->logger = $this->createMock(LoggerInterface::class);
     }
 
-    public function testAddContextSuccessWithData(): void
+    public function testValidateCslLoggerAddContextWithData(): void
     {
         $cslLogger = new CslLogger($this->logger);
         $cslLogger->addContext([
@@ -28,7 +28,7 @@ class CslLoggerTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
-    public function testAddContextSuccessWithEmptyData(): void
+    public function testValidateCslLoggerAddContextWithEmptyData(): void
     {
         $cslLogger = new CslLogger($this->logger);
         $cslLogger->addContext([]);
@@ -36,7 +36,7 @@ class CslLoggerTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
-    public function testGetContextSuccessWithData(): void
+    public function testValidateCslLoggerGetContextWithData(): void
     {
         $cslLogger = new CslLogger($this->logger);
         $data = [
@@ -52,7 +52,7 @@ class CslLoggerTest extends TestCase
         );
     }
 
-    public function testGetContextSuccessWithEmptyData(): void
+    public function testValidateCslLoggerGetContextWithEmptyData(): void
     {
         $cslLogger = new CslLogger($this->logger);
         $cslLogger->addContext([]);
