@@ -8,15 +8,11 @@ use Psr\Log\LoggerInterface;
 
 final class CslLogger implements CslLoggerInterface
 {
-    public LoggerInterface $logger;
-
     /** @var array<string, mixed> */
     private array $context = [];
 
-    public function __construct(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-    }
+    public function __construct(public LoggerInterface $logger)
+    {}
 
     /**
      * @param array<string, mixed> $context
