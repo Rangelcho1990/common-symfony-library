@@ -15,12 +15,9 @@ use Psr\Log\LoggerInterface;
 
 class CslLoggerFactory
 {
-    private CslLoggerFactoryDTO $cslLoggerFactoryDTO;
-
-    public function __construct(CslLoggerFactoryDTO $cslLoggerFactoryDTO)
-    {
-        $this->cslLoggerFactoryDTO = $cslLoggerFactoryDTO;
-    }
+    public function __construct(
+        private readonly CslLoggerFactoryDTO $cslLoggerFactoryDTO
+    ) {}
 
     /**
      * @throws ContainerExceptionInterface
