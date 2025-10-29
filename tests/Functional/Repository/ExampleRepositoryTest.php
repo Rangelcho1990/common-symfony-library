@@ -8,13 +8,14 @@ use CSL\Entity\Example;
 use CSL\Repository\ExampleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use PHPUnit\Framework\Attributes\Test;
+use CSL\Tests\Functional\KernelTestCaseBase;
 
-final class ExampleRepositoryTest extends KernelTestCase
+final class ExampleRepositoryTest extends KernelTestCaseBase
 {
     private EntityManagerInterface $entityManager;
     private ExampleRepository $exampleRepository;
-
+    
     protected function setUp(): void
     {
         self::bootKernel();
@@ -34,7 +35,8 @@ final class ExampleRepositoryTest extends KernelTestCase
         $schemaTool->createSchema($metadata);
     }
 
-    public function _testFindAllUsers(): void
+    #[Test]
+    public function testFindAllUsers(): void
     {
         $user1 = (new Example())->setName('User A');
         $user2 = (new Example())->setName('User B');
