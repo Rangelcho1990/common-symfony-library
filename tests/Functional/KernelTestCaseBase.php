@@ -13,5 +13,3 @@ abstract class KernelTestCaseBase extends KernelTestCase
         return \CSL\Kernel::class;
     }
 }
-
-

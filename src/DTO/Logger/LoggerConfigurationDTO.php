@@ -7,7 +7,7 @@ namespace CSL\DTO\Logger;
 class LoggerConfigurationDTO
 {
     private const PREFIX_NAME = 'Csl';
-    private const PREFIX_CONTROLLER = 'CSL\\Module\\LoggerBundle\\Loggers\\';
+    private const PREFIX_NAMESPACE = 'CSL\\Module\\LoggerBundle\\Loggers\\';
 
     private string $handlerClass;
     private string $handlerNamespace;
@@ -30,42 +30,28 @@ class LoggerConfigurationDTO
      */
     public function prepareConfigurationData(string $handler, array $handlerParams): void
     {
-        $this->setHandlerClass($handler);
-        $this->setHandlerNamespace($handler);
-        $this->setHost($handlerParams['host']);
-        $this->setLevel($handlerParams['level']);
-        $this->setFormat($handlerParams['format']);
+        $this->handlerClass = self::PREFIX_NAME.$handler;
+        $this->handlerNamespace = self::PREFIX_NAMESPACE.self::PREFIX_NAME.$handler;
+        $this->host = $handlerParams['host'];
+        $this->level = $handlerParams['level'];
+        $this->format = $handlerParams['format'];
 
         if (!empty($handlerParams['port'])) {
-            $this->setPort($handlerParams['port']);
+            $this->port = $handlerParams['port'];
         }
 
         if (!empty($handlerParams['source'])) {
-            $this->setSource($handlerParams['source']);
+            $this->source = $handlerParams['source'];
         }
 
         if (!empty($handlerParams['ignoreConnectionErrors'])) {
-            $this->setIgnoreConnectionErrors($handlerParams['ignoreConnectionErrors']);
+            $this->ignoreConnectionErrors = $handlerParams['ignoreConnectionErrors'];
         }
-    }
-
-    public function setHandlerClass(string $handlerName): self
-    {
-        $this->handlerClass = self::PREFIX_NAME.$handlerName;
-
-        return $this;
     }
 
     public function getHandlerClass(): string
     {
         return $this->handlerClass;
-    }
-
-    public function setHandlerNamespace(string $handlerName): self
-    {
-        $this->handlerNamespace = self::PREFIX_CONTROLLER.self::PREFIX_NAME.$handlerName;
-
-        return $this;
     }
 
     public function getHandlerNamespace(): string
@@ -78,23 +64,9 @@ class LoggerConfigurationDTO
         return $this->format;
     }
 
-    public function setFormat(string $format): self
-    {
-        $this->format = $format;
-
-        return $this;
-    }
-
     public function getLevel(): int
     {
         return $this->level;
-    }
-
-    public function setLevel(int $level): self
-    {
-        $this->level = $level;
-
-        return $this;
     }
 
     public function getHost(): string
@@ -102,23 +74,9 @@ class LoggerConfigurationDTO
         return $this->host;
     }
 
-    public function setHost(string $host): self
-    {
-        $this->host = $host;
-
-        return $this;
-    }
-
     public function getPort(): ?int
     {
         return $this->port;
-    }
-
-    public function setPort(?int $port): self
-    {
-        $this->port = $port;
-
-        return $this;
     }
 
     public function getSource(): ?string
@@ -126,22 +84,8 @@ class LoggerConfigurationDTO
         return $this->source;
     }
 
-    public function setSource(?string $source): self
-    {
-        $this->source = $source;
-
-        return $this;
-    }
-
     public function getIgnoreConnectionErrors(): ?bool
     {
         return $this->ignoreConnectionErrors;
-    }
-
-    public function setIgnoreConnectionErrors(?bool $ignoreConnectionErrors): self
-    {
-        $this->ignoreConnectionErrors = $ignoreConnectionErrors;
-
-        return $this;
     }
 }

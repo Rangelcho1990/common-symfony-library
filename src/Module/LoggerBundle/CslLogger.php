@@ -12,7 +12,8 @@ final class CslLogger implements CslLoggerInterface
     private array $context = [];
 
     public function __construct(public LoggerInterface $logger)
-    {}
+    {
+    }
 
     /**
      * @param array<string, mixed> $context

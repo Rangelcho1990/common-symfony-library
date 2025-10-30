@@ -7,8 +7,8 @@ namespace CSL\Module\LoggerBundle;
 use CSL\DTO\Logger\CslLoggerFactoryDTO;
 use CSL\DTO\Logger\LoggerConfigurationDTO;
 use CSL\Exceptions\NotImplementedException;
+use CSL\Module\ErrorHandler\AbstractErrorHandler;
 use CSL\Module\LoggerBundle\Loggers\CslHandlerInterface;
-use Monolog\ErrorHandler;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
@@ -16,8 +16,10 @@ use Psr\Log\LoggerInterface;
 class CslLoggerFactory
 {
     public function __construct(
-        private readonly CslLoggerFactoryDTO $cslLoggerFactoryDTO
-    ) {}
+        private readonly CslLoggerFactoryDTO $cslLoggerFactoryDTO,
+        private readonly AbstractErrorHandler $abstractErrorHandler,
+    ) {
+    }
 
     /**
      * @throws ContainerExceptionInterface
@@ -51,11 +53,11 @@ class CslLoggerFactory
             $loggerConfiguration = new LoggerConfigurationDTO();
             $loggerConfiguration->prepareConfigurationData($handler, $handlerParams);
 
-            if (!class_exists($loggerConfiguration->getHandlerNamespace())) {
-                throw new NotImplementedException('Unknown handler "'.$loggerConfiguration->getHandlerClass().'"');
-            }
-
             try {
+                if (!class_exists($loggerConfiguration->getHandlerNamespace())) {
+                    throw new NotImplementedException('Unknown handler "'.$loggerConfiguration->getHandlerClass().'"');
+                }
+
                 /** @var CslHandlerInterface $handlerClass */
                 $handlerClass = $container->get($loggerConfiguration->getHandlerClass());
                 $handlerClass->setLoggerConfiguration($loggerConfiguration);
@@ -70,9 +72,8 @@ class CslLoggerFactory
 
         $logger = $this->cslLoggerFactoryDTO->getMonologLogger();
         $logger->setHandlers($handlersInstance);
-        unset($loggerConfiguration, $handlersInstance);
 
-        ErrorHandler::register($logger);
+        $this->abstractErrorHandler->handle($logger);
 
         return $logger;
     }

@@ -6,16 +6,16 @@ namespace CSL\Tests\Functional\Repository;
 
 use CSL\Entity\Example;
 use CSL\Repository\ExampleRepository;
+use CSL\Tests\Functional\KernelTestCaseBase;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\Attributes\Test;
-use CSL\Tests\Functional\KernelTestCaseBase;
 
 final class ExampleRepositoryTest extends KernelTestCaseBase
 {
     private EntityManagerInterface $entityManager;
     private ExampleRepository $exampleRepository;
-    
+
     protected function setUp(): void
     {
         self::bootKernel();
