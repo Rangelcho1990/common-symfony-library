@@ -29,19 +29,28 @@ class CslLogFormatter extends LineFormatter
 
         $responseBody = $other = $requestBody = '';
         if (isset($record['context']['request']) && is_string($record['context']['request'])) {
-            $requestBody = $this->replaceDoubleQuoteAndStripSlashes($record['context']['request']);
+            $requestBody = json_encode(
+                $record['context']['request'],
+                JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+            );
         }
 
         if (isset($record['context']['other']) && is_string($record['context']['other'])) {
-            $other = $this->replaceDoubleQuoteAndStripSlashes($record['context']['other']);
+            $other = json_encode(
+                $record['context']['other'],
+                JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+            );
         }
 
         if (isset($record['context']['response']) && is_string($record['context']['response'])) {
-            $responseBody = $this->replaceDoubleQuoteAndStripSlashes($record['context']['response']);
+            $responseBody = json_encode(
+                $record['context']['response'],
+                JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+            );
         }
 
         return json_encode((object) [
-            'timestamp' => $record['datetime'],
+            'timestamp' => $record['datetime']->format(DATE_RFC3339),
             'level' => $record['level_name'],
             'messageTemplate' => $record['context']['messageTemplate'] ?? '',
             'additional_data' => (object) [
@@ -59,10 +68,5 @@ class CslLogFormatter extends LineFormatter
                 'code' => $record['context']['code'] ?? '',
             ],
         ]).PHP_EOL;
-    }
-
-    private function replaceDoubleQuoteAndStripSlashes(string $jsonData): string
-    {
-        return stripslashes(str_replace('"', "'", $jsonData));
     }
 }

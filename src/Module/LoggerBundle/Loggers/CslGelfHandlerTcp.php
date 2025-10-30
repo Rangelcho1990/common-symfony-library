@@ -46,7 +46,6 @@ final class CslGelfHandlerTcp extends AbstractHandlerBuilder
             null,
             ''
         ));
-        unset($transporter);
 
         return $gelfHandler;
     }

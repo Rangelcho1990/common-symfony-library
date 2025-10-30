@@ -25,6 +25,7 @@ class GelfHandlerFormatter extends GelfMessageFormatter
         $messageText = substr($text, 0, $this->maxLength);
         $message = parent::format($record);
         $message->setShortMessage($messageText);
+        $message->setFullMessage($messageText);
         unset($recordData, $data, $text, $messageText);
 
         return $message;
