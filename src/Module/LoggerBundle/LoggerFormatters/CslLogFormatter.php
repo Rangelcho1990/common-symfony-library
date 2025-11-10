@@ -25,48 +25,22 @@ class CslLogFormatter extends LineFormatter
 
     public function format(LogRecord $record): string
     {
-        $record = $record->toArray();
-
-        $responseBody = $other = $requestBody = '';
-        if (isset($record['context']['request']) && is_string($record['context']['request'])) {
-            $requestBody = json_encode(
-                $record['context']['request'],
-                JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-            );
-        }
-
-        if (isset($record['context']['other']) && is_string($record['context']['other'])) {
-            $other = json_encode(
-                $record['context']['other'],
-                JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-            );
-        }
-
-        if (isset($record['context']['response']) && is_string($record['context']['response'])) {
-            $responseBody = json_encode(
-                $record['context']['response'],
-                JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-            );
-        }
-
-        return json_encode((object) [
-            'timestamp' => $record['datetime']->format(DATE_RFC3339),
+        return json_encode([
+            'timestamp' => $record->context['datetime'],
             'level' => $record['level_name'],
-            'messageTemplate' => $record['context']['messageTemplate'] ?? '',
-            'additional_data' => (object) [
-                'requestUid' => $record['context']['requestUid'] ?? '',
-                'requestBody' => $requestBody,
-                'resource' => $record['context']['resource'] ?? '',
-                'method' => $record['context']['method'] ?? '',
-                'ip' => $record['context']['ip'] ?? '',
-                'other' => $other,
-                'responseBody' => $responseBody,
-                'message' => $record['context']['message'] ?? '',
-                'file' => $record['context']['file'] ?? '',
-                'line' => $record['context']['line'] ?? '',
-                'stackTrace' => $record['context']['stackTrace'] ?? '',
-                'code' => $record['context']['code'] ?? '',
-            ],
+            'messageTemplate' => $record->context['messageTemplate'],
+            'requestUid' => $record->context['requestUid'],
+            'requestBody' => $record->context['requestBody'],
+            'resource' => $record->context['resource'],
+            'method' => $record->context['method'],
+            'ip' => $record->context['ip'],
+            'other' => $record->context['other'],
+            'responseBody' => $record->context['responseBody'],
+            'message' => $record->context['message'],
+            'file' => $record->context['file'],
+            'line' => $record->context['line'],
+            'code' => $record->context['code'],
+            'stackTrace' => $record->context['stackTrace'],
         ]).PHP_EOL;
     }
 }
