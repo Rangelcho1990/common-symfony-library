@@ -28,23 +28,19 @@ class CslLoggerFactory
      */
     public function createLogger(): LoggerInterface
     {
-        try {
-            /**
-             * @var array{
-             *    string: array{
-             *      level: int,
-             *      format: string,
-             *      host: string,
-             *      port: int|null,
-             *      source: string|null,
-             *      ignoreConnectionErrors: bool|null
-             *    }
-             * } $handlers
-             */
-            $handlers = $this->cslLoggerFactoryDTO->getParameterBag()->get('handlers');
-        } catch (\InvalidArgumentException $exception) {
-            throw new \InvalidArgumentException($exception->getMessage());
-        }
+        /**
+         * @var array{
+         *    string: array{
+         *      level: int,
+         *      format: string,
+         *      host: string,
+         *      port: int|null,
+         *      source: string|null,
+         *      ignoreConnectionErrors: bool|null
+         *    }
+         * } $handlers
+         */
+        $handlers = $this->cslLoggerFactoryDTO->getParameterBag()->get('handlers');
 
         $handlersInstance = [];
         $container = $this->cslLoggerFactoryDTO->getContainer();
@@ -53,21 +49,17 @@ class CslLoggerFactory
             $loggerConfiguration = new LoggerConfigurationDTO();
             $loggerConfiguration->prepareConfigurationData($handler, $handlerParams);
 
-            try {
-                if (!class_exists($loggerConfiguration->getHandlerNamespace())) {
-                    throw new NotImplementedException('Unknown handler "'.$loggerConfiguration->getHandlerClass().'"');
-                }
-
-                /** @var CslHandlerInterface $handlerClass */
-                $handlerClass = $container->get($loggerConfiguration->getHandlerClass());
-                $handlerClass->setLoggerConfiguration($loggerConfiguration);
-
-                $handlersInstance[] = $handlerClass->getHandler();
-
-                unset($handlerClass);
-            } catch (\Exception $exception) {
-                throw new NotImplementedException($exception->getMessage());
+            if (!class_exists($loggerConfiguration->getHandlerNamespace())) {
+                throw new NotImplementedException('Unknown handler "'.$loggerConfiguration->getHandlerClass().'"');
             }
+
+            /** @var CslHandlerInterface $handlerClass */
+            $handlerClass = $container->get($loggerConfiguration->getHandlerClass());
+            $handlerClass->setLoggerConfiguration($loggerConfiguration);
+
+            $handlersInstance[] = $handlerClass->getHandler();
+
+            unset($handlerClass);
         }
 
         $logger = $this->cslLoggerFactoryDTO->getMonologLogger();
