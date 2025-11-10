@@ -6,6 +6,7 @@ namespace CSL\Module\LoggerBundle;
 
 interface CslLoggerInterface
 {
+    // TODO: remove the interface
     /**
      * @param array<string, mixed> $context
      */

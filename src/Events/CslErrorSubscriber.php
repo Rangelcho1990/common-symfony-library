@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CSL\Events;
 
+use CSL\Module\LoggerBundle\DTO\CslLogDataDTO;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -12,20 +13,16 @@ class CslErrorSubscriber extends CslAbstractSubscriber
 {
     public function onKernelException(ExceptionEvent $event): void
     {
-        $this->cslLogger->addContext([
-            'messageTemplate' => 'Error',
-            'resource' => $event->getRequest()->getRequestUri(),
-            'method' => $event->getRequest()->getMethod(),
-            'message' => $event->getThrowable()->getMessage(),
-            'code' => $event->getThrowable()->getCode(),
-            'stackTrace' => $event->getThrowable()->getTrace(),
-            'requestUid' => $this->requestUid,
-        ]);
+        $cslLogDataDTO = new CslLogDataDTO();
+        $cslLogDataDTO->setMessageTemplate('Error');
+        $cslLogDataDTO->setRequestUid($this->requestUid);
+        $cslLogDataDTO->setResource($event->getRequest()->getRequestUri());
+        $cslLogDataDTO->setMethod($event->getRequest()->getMethod());
+        $cslLogDataDTO->setMessage($event->getThrowable()->getMessage());
+        $cslLogDataDTO->setCode($event->getThrowable()->getCode());
+        $cslLogDataDTO->setStackTrace($event->getThrowable()->getTrace());
 
-        $this->cslLogger->logger->error(
-            'Error',
-            $this->cslLogger->getContext()
-        );
+        $this->cslLogger->logger->error('Error', $cslLogDataDTO->getLogData());
 
         $responseData = json_encode([
             'message' => $event->getThrowable()->getMessage(),
