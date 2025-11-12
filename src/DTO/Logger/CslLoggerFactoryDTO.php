@@ -7,6 +7,7 @@ namespace CSL\DTO\Logger;
 use Monolog\Logger;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
+use Psr\Log\LoggerInterface;
 
 class CslLoggerFactoryDTO
 {
@@ -15,7 +16,7 @@ class CslLoggerFactoryDTO
     private ContainerInterface $container;
 
     public function __construct(
-        Logger $monologLogger,
+        LoggerInterface $monologLogger,
         ContainerBagInterface $parameterBag,
         ContainerInterface $container,
     ) {

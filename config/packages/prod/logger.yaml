@@ -10,11 +10,11 @@ parameters:
         StreamHandler:
             host: "php://stdout"
             level: 100
-            format: '{"timestamp": ":timestamp:", "level": ":level:", "messageTemplate": "{@Type}, EventId: {@EventId} {@Metrics}", "additional_data": { "requestUid": "", "requestBodyStringified": "", "requestQuery": "", "method": "", "ip": "", "other": "", "responseBodyStringified": "", "message": "", "errorMessage": "", "errorFile": "", "errorLine": "", "stackTrace": ""}}'
+            format: '{"timestamp":"","level":"","messageTemplate":"","requestUid":"","requestBody":"","resource":"","method":"","ip":"","other":"","responseBody":"","message":"","file":"","line":"","code":0,"stackTrace":""}'
 #        GelfHandlerTcp:
 #            host: "127.0.0.1" # default host for TcpTransport
 #            port: 12201 # default port for TcpTransport
 #            source: "GelfHandlerTcp" #example
 #            level: 100
-#            format: '{"timestamp": ":timestamp:", "level": ":level:", "messageTemplate": "{@Type}, EventId: {@EventId} {@Metrics}", "additional_data": { "requestUid": "", "requestBodyStringified": "", "requestQuery": "", "method": "", "ip": "", "other": "", "responseBodyStringified": "", "message": "", "errorMessage": "", "errorFile": "", "errorLine": "", "stackTrace": ""}}'
+#            format: '{"timestamp":"","level":"","messageTemplate":"","requestUid":"","requestBody":"","resource":"","method":"","ip":"","other":"","responseBody":"","message":"","file":"","line":"","code":0,"stackTrace":""}'
     app_name: "common-service-template-api"
