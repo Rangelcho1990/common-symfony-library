@@ -7,7 +7,7 @@ namespace CSL\Module\LoggerBundle\Loggers;
 use CSL\DTO\Logger\LoggerConfigurationDTO;
 use Monolog\Level;
 
-abstract class AbstractHandlerBuilder implements CslHandlerInterface
+abstract class CslAbstractHandlerBuilder implements CslHandlerInterface
 {
     protected LoggerConfigurationDTO $loggerConfiguration;
 

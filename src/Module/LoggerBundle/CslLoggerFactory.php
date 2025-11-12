@@ -58,8 +58,6 @@ class CslLoggerFactory
             $handlerClass->setLoggerConfiguration($loggerConfiguration);
 
             $handlersInstance[] = $handlerClass->getHandler();
-
-            unset($handlerClass);
         }
 
         $logger = $this->cslLoggerFactoryDTO->getMonologLogger();
