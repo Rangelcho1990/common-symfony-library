@@ -19,9 +19,7 @@ abstract class CslAbstractHandlerBuilder implements CslHandlerInterface
     protected function getLogLevel(): Level
     {
         if (!isset($this->loggerConfiguration)) {
-            throw new \RuntimeException(
-                'LoggerConfiguration must be set before getting log level'
-            );
+            throw new \RuntimeException('LoggerConfiguration must be set before getting log level');
         }
 
         return match ($this->loggerConfiguration->getLevel()) {

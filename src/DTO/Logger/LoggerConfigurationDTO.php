@@ -36,7 +36,7 @@ class LoggerConfigurationDTO
         $this->level = $handlerParams['level'];
         $this->format = $handlerParams['format'];
 
-         // Use array_key_exists to check if key exists, allowing false values
+        // Use array_key_exists to check if key exists, allowing false values
         if (array_key_exists('port', $handlerParams) && !empty($handlerParams['port'])) {
             $this->port = $handlerParams['port'];
         }
