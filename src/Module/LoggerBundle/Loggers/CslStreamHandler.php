@@ -14,15 +14,23 @@ final class CslStreamHandler extends CslAbstractHandlerBuilder
 {
     public function getHandler(): HandlerInterface
     {
-        $handlerInstance = new StreamHandler(
-            $this->loggerConfiguration->getHost(),
-            $this->getLogLevel()
-        );
+        try {
+            $handlerInstance = new StreamHandler(
+                $this->loggerConfiguration->getHost(),
+                $this->getLogLevel()
+            );
 
-        $handlerInstance->setFormatter(
-            new CslLogFormatter($this->loggerConfiguration->getFormat())
-        );
+            $handlerInstance->setFormatter(
+                new CslLogFormatter($this->loggerConfiguration->getFormat())
+            );
 
-        return $handlerInstance;
+            return $handlerInstance;
+        } catch (\Exception $e) {
+            throw new \RuntimeException(
+                'Failed to create StreamHandler: '.$e->getMessage(),
+                0,
+                $e
+            );
+        }
     }
 }
