@@ -54,9 +54,7 @@ class CslLoggerFactory
 
         foreach ($handlers as $handler => $handlerParams) {
             if (!is_array($handlerParams)) {
-                throw new \InvalidArgumentException(
-                    "Handler configuration for '{$handler}' must be an array"
-                );
+                throw new \InvalidArgumentException("Handler configuration for '{$handler}' must be an array");
             }
 
             $loggerConfiguration = new LoggerConfigurationDTO();
@@ -69,9 +67,7 @@ class CslLoggerFactory
             /** @var CslHandlerInterface $handlerClass */
             $handlerClass = $container->get($loggerConfiguration->getHandlerClass());
             if (!$handlerClass instanceof CslHandlerInterface) {
-                throw new \TypeError(
-                    'Handler "'.$loggerConfiguration->getHandlerClass().'" must implement CslHandlerInterface'
-                );
+                throw new \TypeError('Handler "'.$loggerConfiguration->getHandlerClass().'" must implement CslHandlerInterface');
             }
 
             $handlerClass->setLoggerConfiguration($loggerConfiguration);

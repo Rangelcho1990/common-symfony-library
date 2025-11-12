@@ -26,11 +26,7 @@ final class CslStreamHandler extends CslAbstractHandlerBuilder
 
             return $handlerInstance;
         } catch (\Exception $e) {
-            throw new \RuntimeException(
-                'Failed to create StreamHandler: '.$e->getMessage(),
-                0,
-                $e
-            );
+            throw new \RuntimeException('Failed to create StreamHandler: '.$e->getMessage(), 0, $e);
         }
     }
 }
