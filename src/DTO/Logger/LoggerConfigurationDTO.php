@@ -36,16 +36,18 @@ class LoggerConfigurationDTO
         $this->level = $handlerParams['level'];
         $this->format = $handlerParams['format'];
 
-        if (!empty($handlerParams['port'])) {
+         // Use array_key_exists to check if key exists, allowing false values
+        if (array_key_exists('port', $handlerParams) && !empty($handlerParams['port'])) {
             $this->port = $handlerParams['port'];
         }
 
-        if (!empty($handlerParams['source'])) {
+        if (array_key_exists('source', $handlerParams) && !empty($handlerParams['source'])) {
             $this->source = $handlerParams['source'];
         }
 
-        if (!empty($handlerParams['ignoreConnectionErrors'])) {
-            $this->ignoreConnectionErrors = $handlerParams['ignoreConnectionErrors'];
+        // For boolean, check if key exists (allows false values)
+        if (array_key_exists('ignoreConnectionErrors', $handlerParams)) {
+            $this->ignoreConnectionErrors = (bool) $handlerParams['ignoreConnectionErrors'];
         }
     }
 

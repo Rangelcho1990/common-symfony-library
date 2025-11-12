@@ -21,7 +21,7 @@ final class CslGelfHandlerTcp extends CslAbstractHandlerBuilder
      */
     public function getHandler(): HandlerInterface
     {
-        if (is_null($this->loggerConfiguration->getPort())) {
+        if (null === $this->loggerConfiguration->getPort()) {
             throw new ParameterNotFoundException('Missing port for CslGelfHandlerTcp!');
         }
 
@@ -30,7 +30,7 @@ final class CslGelfHandlerTcp extends CslAbstractHandlerBuilder
             $this->loggerConfiguration->getPort(),
         );
 
-        if (false === is_null($this->loggerConfiguration->getIgnoreConnectionErrors())
+        if (null !== $this->loggerConfiguration->getIgnoreConnectionErrors()
             && $this->loggerConfiguration->getIgnoreConnectionErrors()
         ) {
             $transporter = new IgnoreErrorTransportWrapper($transporter);
