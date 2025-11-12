@@ -20,7 +20,7 @@ class CslLogDataDTO
     private string $file = '';
     private string $line = '';
 
-    /** @var array<mixed> $stackTrace */
+    /** @var array<mixed> */
     private array $stackTrace = [];
     private int $code = 0;
 

@@ -11,23 +11,19 @@ use Psr\Log\LoggerInterface;
 
 class CslLoggerFactoryDTO
 {
-    private Logger $logger;
-    private ContainerBagInterface $parameterBag;
-    private ContainerInterface $container;
-
     public function __construct(
-        LoggerInterface $monologLogger,
-        ContainerBagInterface $parameterBag,
-        ContainerInterface $container,
+        private readonly LoggerInterface $monologLogger,
+        private readonly ContainerBagInterface $parameterBag,
+        private readonly ContainerInterface $container,
     ) {
-        $this->logger = $monologLogger;
+        $this->monologLogger = $monologLogger;
         $this->parameterBag = $parameterBag;
         $this->container = $container;
     }
 
     public function getMonologLogger(): Logger
     {
-        return $this->logger;
+        return $this->monologLogger;
     }
 
     public function getParameterBag(): ContainerBagInterface
