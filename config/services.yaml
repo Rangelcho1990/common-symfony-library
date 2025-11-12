@@ -14,3 +14,7 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+
+    CSL\DTO\Logger\CslLoggerFactoryDTO:
+        arguments:
+            $monologLogger: '@monolog.logger'
