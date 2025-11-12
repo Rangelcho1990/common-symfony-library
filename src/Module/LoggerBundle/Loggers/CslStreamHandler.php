@@ -10,7 +10,7 @@ use Monolog\Handler\StreamHandler;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
 #[AsAlias(id: 'CslStreamHandler', public: true)]
-final class CslStreamHandler extends AbstractHandlerBuilder
+final class CslStreamHandler extends CslAbstractHandlerBuilder
 {
     public function getHandler(): HandlerInterface
     {
