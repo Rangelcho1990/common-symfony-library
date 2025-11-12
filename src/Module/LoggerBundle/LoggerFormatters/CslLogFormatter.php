@@ -25,22 +25,28 @@ class CslLogFormatter extends LineFormatter
 
     public function format(LogRecord $record): string
     {
-        return json_encode([
-            'timestamp' => $record->context['datetime'],
-            'level' => $record['level_name'],
-            'messageTemplate' => $record->context['messageTemplate'],
-            'requestUid' => $record->context['requestUid'],
-            'requestBody' => $record->context['requestBody'],
-            'resource' => $record->context['resource'],
-            'method' => $record->context['method'],
-            'ip' => $record->context['ip'],
-            'other' => $record->context['other'],
-            'responseBody' => $record->context['responseBody'],
-            'message' => $record->context['message'],
-            'file' => $record->context['file'],
-            'line' => $record->context['line'],
-            'code' => $record->context['code'],
-            'stackTrace' => $record->context['stackTrace'],
-        ]).PHP_EOL;
+        $context = $record->context;
+
+        $data = [
+            'timestamp' => $context['datetime'] ?? $record->datetime->format('c'),
+            'level' => $record->level->getName(),
+            'messageTemplate' => $context['messageTemplate'] ?? null,
+            'requestUid' => $context['requestUid'] ?? null,
+            'requestBody' => $context['requestBody'] ?? null,
+            'resource' => $context['resource'] ?? null,
+            'method' => $context['method'] ?? null,
+            'ip' => $context['ip'] ?? null,
+            'other' => $context['other'] ?? null,
+            'responseBody' => $context['responseBody'] ?? null,
+            'message' => $context['message'] ?? $record->message,
+            'file' => $context['file'] ?? $record->extra['file'] ?? null,
+            'line' => $context['line'] ?? $record->extra['line'] ?? null,
+            'code' => $context['code'] ?? null,
+            'stackTrace' => $context['stackTrace'] ?? null,
+        ];
+
+        $json = json_encode($data, JSON_THROW_ON_ERROR);
+
+        return $json.PHP_EOL;
     }
 }
