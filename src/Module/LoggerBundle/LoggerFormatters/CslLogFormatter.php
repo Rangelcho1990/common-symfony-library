@@ -15,8 +15,8 @@ class CslLogFormatter extends LineFormatter
      * @param bool   $allowInlineLineBreaks Whether to allow inline line breaks in log entries
      */
     public function __construct(
-        $format = null,
-        $dateFormat = null,
+        ?string $format = null,
+        ?string $dateFormat = null,
         bool $allowInlineLineBreaks = false,
         bool $ignoreEmptyContextAndExtra = false,
     ) {

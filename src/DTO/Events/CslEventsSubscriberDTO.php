@@ -9,12 +9,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CslEventsSubscriberDTO
 {
-    private ContainerBagInterface $parameterBag;
-    private ValidatorInterface $validator;
-
     public function __construct(
-        ContainerBagInterface $parameterBag,
-        ValidatorInterface $validator,
+        private readonly ContainerBagInterface $parameterBag,
+        private readonly ValidatorInterface $validator,
     ) {
         $this->parameterBag = $parameterBag;
         $this->validator = $validator;
