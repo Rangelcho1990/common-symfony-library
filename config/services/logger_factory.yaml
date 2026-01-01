@@ -1,0 +1,11 @@
+services:
+    # Alias Monolog\Logger to monolog.logger service
+    Monolog\Logger: '@monolog.logger'
+
+    CSL\Module\LoggerBundle\CslLoggerFactory:
+        arguments:
+            $monologLogger: '@monolog.logger'
+            $parameterBag: '@parameter_bag'
+            $abstractErrorHandler: '@CSL\Module\ErrorHandler\AbstractErrorHandler'
+            $handlerFactory: '@CSL\Module\LoggerBundle\Handler\Factory\HandlerFactoryInterface'
+        autowire: false
