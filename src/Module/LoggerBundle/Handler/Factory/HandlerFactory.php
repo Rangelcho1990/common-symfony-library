@@ -23,9 +23,11 @@ class HandlerFactory implements HandlerFactoryInterface
      * @throws NotFoundExceptionInterface
      * @throws NotImplementedException
      */
-    public function createHandler(string $handlerClass, LoggerConfigurationDTO $config): HandlerInterface
+    public function createHandler(LoggerConfigurationDTO $config): HandlerInterface
     {
-        $handler = $this->handlerRegistry->getHandler($handlerClass);
+        $handler = $this->handlerRegistry->getHandler(
+            $config->getHandlerClass()
+        );
         $handler->setLoggerConfiguration($config);
 
         return $handler->getHandler();

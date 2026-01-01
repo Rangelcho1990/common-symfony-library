@@ -53,10 +53,7 @@ class CslLoggerFactory
                 throw new NotImplementedException('Unknown handler "'.$loggerConfiguration->getHandlerClass().'"');
             }
 
-            $handlersInstance[] = $this->handlerFactory->createHandler(
-                $loggerConfiguration->getHandlerClass(),
-                $loggerConfiguration
-            );
+            $handlersInstance[] = $this->handlerFactory->createHandler($loggerConfiguration);
         }
 
         $logger = $this->cslLoggerFactoryDTO->getMonologLogger();

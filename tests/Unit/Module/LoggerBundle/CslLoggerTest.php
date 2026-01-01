@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CSL\Tests\Unit\Module\LoggerBundle;
 
-use CSL\Module\LoggerBundle\CslLogger;
+use CSL\Module\LoggerBundle\CslLogger\CslLogger;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 

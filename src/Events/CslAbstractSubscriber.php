@@ -6,7 +6,7 @@ namespace CSL\Events;
 
 use CSL\DTO\Events\CslEventsSubscriberDTO;
 use CSL\DTO\Logger\CslLoggerDTO;
-use CSL\Module\LoggerBundle\CslLogger;
+use CSL\Module\LoggerBundle\CslLogger\CslLogger;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

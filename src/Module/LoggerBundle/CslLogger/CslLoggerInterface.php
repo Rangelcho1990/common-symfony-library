@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CSL\Module\LoggerBundle;
+namespace CSL\Module\LoggerBundle\CslLogger;
 
 interface CslLoggerInterface
 {

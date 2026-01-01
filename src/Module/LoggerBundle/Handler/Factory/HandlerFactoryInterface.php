@@ -9,5 +9,5 @@ use Monolog\Handler\HandlerInterface;
 
 interface HandlerFactoryInterface
 {
-    public function createHandler(string $handlerClass, LoggerConfigurationDTO $config): HandlerInterface;
+    public function createHandler(LoggerConfigurationDTO $config): HandlerInterface;
 }
