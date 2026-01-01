@@ -27,6 +27,7 @@ abstract class CslAbstractHandlerBuilder implements CslHandlerInterface
             200 => Level::Info,
             250 => Level::Notice,
             300 => Level::Warning,
+            400 => Level::Error,
             500 => Level::Critical,
             550 => Level::Alert,
             600 => Level::Emergency,
