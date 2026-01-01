@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CSL\DTO\Logger;
 
 use CSL\Exceptions\NotImplementedException;
-use CSL\Module\LoggerBundle\CslLogger;
+use CSL\Module\LoggerBundle\CslLogger\CslLogger;
 use CSL\Module\LoggerBundle\CslLoggerFactory;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;

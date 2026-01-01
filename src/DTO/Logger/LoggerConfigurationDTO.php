@@ -30,23 +30,31 @@ class LoggerConfigurationDTO
      */
     public function prepareConfigurationData(string $handler, array $handlerParams): void
     {
+        if (empty($handlerParams['host'])) {
+            throw new \InvalidArgumentException('Host is required');
+        }
+        if (empty($handlerParams['level'])) {
+            throw new \InvalidArgumentException('Level is required');
+        }
+        if (empty($handlerParams['format'])) {
+            throw new \InvalidArgumentException('Format is required');
+        }
+
         $this->handlerClass = self::PREFIX_NAME.$handler;
-        $this->handlerNamespace = self::PREFIX_NAMESPACE.self::PREFIX_NAME.$handler;
+        $this->handlerNamespace = self::PREFIX_NAMESPACE.$this->handlerClass;
         $this->host = $handlerParams['host'];
         $this->level = $handlerParams['level'];
         $this->format = $handlerParams['format'];
 
-        // Use array_key_exists to check if key exists, allowing false values
-        if (array_key_exists('port', $handlerParams) && !empty($handlerParams['port'])) {
+        if (!empty($handlerParams['port'])) {
             $this->port = $handlerParams['port'];
         }
 
-        if (array_key_exists('source', $handlerParams) && !empty($handlerParams['source'])) {
+        if (!empty($handlerParams['source'])) {
             $this->source = $handlerParams['source'];
         }
 
-        // For boolean, check if key exists (allows false values)
-        if (array_key_exists('ignoreConnectionErrors', $handlerParams)) {
+        if (!empty($handlerParams['ignoreConnectionErrors'])) {
             $this->ignoreConnectionErrors = (bool) $handlerParams['ignoreConnectionErrors'];
         }
     }
