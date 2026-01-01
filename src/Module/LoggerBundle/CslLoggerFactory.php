@@ -14,7 +14,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 
-class CslLoggerFactory
+class CslLoggerFactory implements CslLoggerFactoryInterface
 {
     public function __construct(
         private readonly Logger $monologLogger,
