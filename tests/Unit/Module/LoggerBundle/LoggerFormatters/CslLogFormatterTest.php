@@ -56,26 +56,27 @@ class CslLogFormatterTest extends TestCase
 
         $this->assertIsArray($response);
 
+        // Verify timestamp is a string (ISO 8601 format)
         $this->assertArrayHasKey('timestamp', $response);
-        $this->assertArrayHasKey('date', $response['timestamp']);
-        $this->assertArrayHasKey('timezone_type', $response['timestamp']);
-        $this->assertArrayHasKey('timezone', $response['timestamp']);
+        $this->assertIsString($response['timestamp']);
 
+        // Verify all top-level fields exist
         $this->assertArrayHasKey('level', $response);
         $this->assertArrayHasKey('messageTemplate', $response);
-        $this->assertArrayHasKey('additional_data', $response);
+        $this->assertArrayHasKey('requestUid', $response);
+        $this->assertArrayHasKey('requestBody', $response);
+        $this->assertArrayHasKey('resource', $response);
+        $this->assertArrayHasKey('method', $response);
+        $this->assertArrayHasKey('ip', $response);
+        $this->assertArrayHasKey('other', $response);
+        $this->assertArrayHasKey('responseBody', $response);
+        $this->assertArrayHasKey('message', $response);
+        $this->assertArrayHasKey('file', $response);
+        $this->assertArrayHasKey('line', $response);
+        $this->assertArrayHasKey('stackTrace', $response);
+        $this->assertArrayHasKey('code', $response);
 
-        $this->assertArrayHasKey('requestUid', $response['additional_data']);
-        $this->assertArrayHasKey('requestBody', $response['additional_data']);
-        $this->assertArrayHasKey('resource', $response['additional_data']);
-        $this->assertArrayHasKey('method', $response['additional_data']);
-        $this->assertArrayHasKey('ip', $response['additional_data']);
-        $this->assertArrayHasKey('other', $response['additional_data']);
-        $this->assertArrayHasKey('responseBody', $response['additional_data']);
-        $this->assertArrayHasKey('message', $response['additional_data']);
-        $this->assertArrayHasKey('file', $response['additional_data']);
-        $this->assertArrayHasKey('line', $response['additional_data']);
-        $this->assertArrayHasKey('stackTrace', $response['additional_data']);
-        $this->assertArrayHasKey('code', $response['additional_data']);
+        // Verify message is correctly set
+        $this->assertEquals('Hello from test', $response['message']);
     }
 }
