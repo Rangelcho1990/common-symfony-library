@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CSL\Module\LoggerBundle\Loggers;
+namespace CSL\Module\LoggerBundle\Handler;
 
 use CSL\Exceptions\ParameterNotFoundException;
 use CSL\Module\LoggerBundle\LoggerFormatters\GelfHandlerFormatter;

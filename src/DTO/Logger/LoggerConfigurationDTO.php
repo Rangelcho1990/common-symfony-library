@@ -7,7 +7,7 @@ namespace CSL\DTO\Logger;
 class LoggerConfigurationDTO
 {
     private const PREFIX_NAME = 'Csl';
-    private const PREFIX_NAMESPACE = 'CSL\\Module\\LoggerBundle\\Loggers\\';
+    private const PREFIX_NAMESPACE = 'CSL\\Module\\LoggerBundle\\Handler\\';
 
     private string $handlerClass;
     private string $handlerNamespace;

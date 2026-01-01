@@ -8,7 +8,7 @@ use CSL\DTO\Logger\CslLoggerFactoryDTO;
 use CSL\DTO\Logger\LoggerConfigurationDTO;
 use CSL\Exceptions\NotImplementedException;
 use CSL\Module\ErrorHandler\AbstractErrorHandler;
-use CSL\Module\LoggerBundle\Loggers\CslHandlerInterface;
+use CSL\Module\LoggerBundle\Handler\Factory\HandlerFactoryInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
@@ -18,6 +18,7 @@ class CslLoggerFactory
     public function __construct(
         private readonly CslLoggerFactoryDTO $cslLoggerFactoryDTO,
         private readonly AbstractErrorHandler $abstractErrorHandler,
+        private readonly HandlerFactoryInterface $handlerFactory,
     ) {
     }
 
@@ -43,7 +44,6 @@ class CslLoggerFactory
         $handlers = $this->cslLoggerFactoryDTO->getParameterBag()->get('handlers');
 
         $handlersInstance = [];
-        $container = $this->cslLoggerFactoryDTO->getContainer();
 
         foreach ($handlers as $handler => $handlerParams) {
             $loggerConfiguration = new LoggerConfigurationDTO();
@@ -53,13 +53,10 @@ class CslLoggerFactory
                 throw new NotImplementedException('Unknown handler "'.$loggerConfiguration->getHandlerClass().'"');
             }
 
-            $handlerClass = $container->get($loggerConfiguration->getHandlerClass());
-            if (!$handlerClass instanceof CslHandlerInterface) {
-                throw new \TypeError('Handler "'.$loggerConfiguration->getHandlerClass().'" must implement CslHandlerInterface');
-            }
-
-            $handlerClass->setLoggerConfiguration($loggerConfiguration);
-            $handlersInstance[] = $handlerClass->getHandler();
+            $handlersInstance[] = $this->handlerFactory->createHandler(
+                $loggerConfiguration->getHandlerClass(),
+                $loggerConfiguration
+            );
         }
 
         $logger = $this->cslLoggerFactoryDTO->getMonologLogger();
