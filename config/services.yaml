@@ -1,8 +1,8 @@
-parameters:
-    app.docs_uri: '%env(DOCS_URI)%'
-
 imports:
     - { resource: services/handler_factory.yaml }
+
+parameters:
+    app.docs_uri: '%env(DOCS_URI)%'
 
 services:
     Symfony\Component\DependencyInjection\ContainerInterface: '@service_container'
