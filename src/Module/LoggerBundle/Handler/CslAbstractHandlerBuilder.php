@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CSL\Module\LoggerBundle\Loggers;
+namespace CSL\Module\LoggerBundle\Handler;
 
 use CSL\DTO\Logger\LoggerConfigurationDTO;
 use Monolog\Level;
