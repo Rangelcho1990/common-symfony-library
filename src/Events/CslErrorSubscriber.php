@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace CSL\Events;
 
-use CSL\Module\LoggerBundle\DTO\CslLogDataDTO;
+use CSL\Module\LoggerBundle\DTO\CslLogRequestDataDTO;
+use CSL\Module\LoggerBundle\DTO\CslLogTraceDataDTO;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -13,16 +14,29 @@ class CslErrorSubscriber extends CslAbstractSubscriber
 {
     public function onKernelException(ExceptionEvent $event): void
     {
-        $cslLogDataDTO = new CslLogDataDTO();
-        $cslLogDataDTO->setMessageTemplate('Error');
-        $cslLogDataDTO->setRequestUid($this->requestUid);
-        $cslLogDataDTO->setResource($event->getRequest()->getRequestUri());
-        $cslLogDataDTO->setMethod($event->getRequest()->getMethod());
-        $cslLogDataDTO->setMessage($event->getThrowable()->getMessage());
-        $cslLogDataDTO->setCode($event->getThrowable()->getCode());
-        $cslLogDataDTO->setStackTrace($event->getThrowable()->getTrace());
+        $cslLogRequestDataDTO = new CslLogRequestDataDTO();
+        $cslLogRequestDataDTO->prepareLogRequestData(
+            $event->getRequest()->request->all(),
+            $event->getRequest()->getRequestUri(),
+            $event->getRequest()->getMethod(),
+            $this->requestUid,
+            $event->getRequest()->getClientIps(),
+        );
 
-        $this->cslLogger->logger->error('Error', $cslLogDataDTO->getLogData());
+        $cslLogTraceDataDTO = new CslLogTraceDataDTO();
+        $cslLogTraceDataDTO->prepareLogTraceData(
+            'Error',
+            null,
+            null,
+            $event->getThrowable()->getMessage(),
+            null,
+            null,
+            $event->getThrowable()->getTrace(),
+            $event->getThrowable()->getCode()
+        );
+
+        $this->cslLogger->logError($cslLogRequestDataDTO, $cslLogTraceDataDTO);
+        unset($cslLogRequestDataDTO, $cslLogTraceDataDTO);
 
         $responseData = json_encode([
             'message' => $event->getThrowable()->getMessage(),
