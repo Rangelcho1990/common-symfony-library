@@ -8,7 +8,7 @@ use Gelf\Message;
 use Monolog\Formatter\GelfMessageFormatter;
 use Monolog\LogRecord;
 
-class GelfHandlerFormatter extends GelfMessageFormatter
+class GelfHandlerFormatter extends GelfMessageFormatter implements GelfHandlerFormatterInterface
 {
     public function format(LogRecord $record): Message
     {
