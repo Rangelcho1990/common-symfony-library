@@ -1,5 +1,6 @@
 imports:
     - { resource: services/handler_factory.yaml }
+    - { resource: services/logger_factory.yaml }
 
 parameters:
     app.docs_uri: '%env(DOCS_URI)%'
@@ -17,7 +18,3 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
-
-    CSL\DTO\Logger\CslLoggerFactoryDTO:
-        arguments:
-            $monologLogger: '@monolog.logger'
