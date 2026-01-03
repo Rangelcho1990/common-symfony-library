@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace CSL\Module\LoggerBundle\CslLogger;
 
+use CSL\Module\LoggerBundle\CslLogger\CslLoggerCriticalEvents\CslLoggerCriticalEvents;
+use CSL\Module\LoggerBundle\CslLogger\CslLoggerInfoEvents\CslLoggerInfoEvents;
+use CSL\Module\LoggerBundle\CslLogger\CslLoggerImportedEvents\CslLoggerImportedEvents;
+
 interface CslLoggerInterface
 {
-    // TODO: remove the interface
-    /**
-     * @param array<string, mixed> $context
-     */
-    public function addContext(array $context): void;
+    public function getCriticalEvents(): CslLoggerCriticalEvents;
 
-    /**
-     * @return array<string, mixed>
-     */
-    public function getContext(): array;
+    public function getInfoEvents(): CslLoggerInfoEvents;
+
+    public function getImportedEvents(): CslLoggerImportedEvents;
 }

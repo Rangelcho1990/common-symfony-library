@@ -4,47 +4,39 @@ declare(strict_types=1);
 
 namespace CSL\Module\LoggerBundle\CslLogger;
 
-use CSL\Module\LoggerBundle\DTO\CslLogRequestDataDTOInterface;
-use CSL\Module\LoggerBundle\DTO\CslLogTraceDataDTOInterface;
+use CSL\Module\LoggerBundle\CslLogger\CslLoggerCriticalEvents\CslLoggerCriticalEvents;
+use CSL\Module\LoggerBundle\CslLogger\CslLoggerInfoEvents\CslLoggerInfoEvents;
+use CSL\Module\LoggerBundle\CslLogger\CslLoggerImportedEvents\CslLoggerImportedEvents;
 use Psr\Log\LoggerInterface;
 
-final class CslLogger implements CslLoggerInterface, CslLoggerEventsInterface
+final class CslLogger implements CslLoggerInterface
 {
+    private CslLoggerCriticalEvents $criticalEvents;
+    private CslLoggerInfoEvents $infoEvents;
+    private CslLoggerImportedEvents $importedEvents;
+
     /** @var array<string, mixed> */
     private array $context = [];
 
     public function __construct(private readonly LoggerInterface $logger)
     {
+        $this->criticalEvents = new CslLoggerCriticalEvents($logger);
+        $this->infoEvents = new CslLoggerInfoEvents($logger);
+        $this->importedEvents = new CslLoggerImportedEvents($logger);
     }
 
-    public function logError(
-        CslLogRequestDataDTOInterface $cslLogRequestDataDTO,
-        CslLogTraceDataDTOInterface $cslLogTraceDataDTO,
-    ): void {
-        $this->logger->error(
-            'Error',
-            array_merge(
-                $cslLogRequestDataDTO->getLogRequestData(),
-                $cslLogTraceDataDTO->getLogTraceData()
-            )
-        );
-    }
-
-    /**
-     * @param array<string, mixed> $context
-     */
-    public function addContext(array $context): void
+    public function getCriticalEvents(): CslLoggerCriticalEvents
     {
-        if (!empty($context)) {
-            $this->context = array_merge($this->context, $context);
-        }
+        return $this->criticalEvents;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    public function getContext(): array
+    public function getInfoEvents(): CslLoggerInfoEvents
     {
-        return $this->context;
+        return $this->infoEvents;
+    }
+
+    public function getImportedEvents(): CslLoggerImportedEvents
+    {
+        return $this->importedEvents;
     }
 }
