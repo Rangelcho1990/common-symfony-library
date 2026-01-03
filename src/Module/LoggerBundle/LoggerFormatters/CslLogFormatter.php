@@ -25,7 +25,7 @@ class CslLogFormatter extends LineFormatter implements CslLogFormatterInterface
             'message' => $record->context['message'] ?? null,
             'file' => $record->context['file'] ?? null,
             'line' => $record->context['line'] ?? null,
-            'code' => $record->context['code'] ? $record->context['code'] : $record->level->fromName($record->level->getName()),
+            'code' => !empty($record->context['code']) ? $record->context['code'] : $record->level->fromName($record->level->getName()),
             'stackTrace' => $record->context['stackTrace'] ?? null,
         ],
             JSON_THROW_ON_ERROR

@@ -35,7 +35,7 @@ class CslErrorSubscriber extends CslAbstractSubscriber
             $event->getThrowable()->getCode()
         );
 
-        $this->cslLogger->logError($cslLogRequestDataDTO, $cslLogTraceDataDTO);
+        $this->cslLogger->getCriticalEvents()->logError($cslLogRequestDataDTO, $cslLogTraceDataDTO);
         unset($cslLogRequestDataDTO, $cslLogTraceDataDTO);
 
         $responseData = json_encode([
