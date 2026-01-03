@@ -8,13 +8,23 @@
         "doctrine/doctrine-bundle": "^2.16",
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.5",
+        "graylog2/gelf-php": "^2.0",
+        "monolog/monolog": "^3.9",
+        "nelmio/api-doc-bundle": "^5.6",
+        "ramsey/uuid-doctrine": "^2.1",
+        "symfony/asset": "7.3.*",
         "symfony/console": "7.3.*",
         "symfony/dependency-injection": "^7.3",
         "symfony/dotenv": "7.3.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "7.3.*",
+        "symfony/monolog-bundle": "^3.10",
         "symfony/runtime": "7.3.*",
+        "symfony/twig-bundle": "7.3.*",
+        "symfony/validator": "7.3.*",
         "symfony/yaml": "7.3.*",
+        "twig/extra-bundle": "^2.12|^3.0",
+        "twig/twig": "^2.12|^3.0",
         "uzunov-labs/redis-service": "1.0.2"
     },
     "require-dev": {
@@ -22,7 +32,9 @@
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^12.3",
         "symfony/browser-kit": "7.3.*",
-        "symfony/css-selector": "7.3.*"
+        "symfony/css-selector": "7.3.*",
+        "symfony/stopwatch": "7.3.*",
+        "symfony/web-profiler-bundle": "7.3.*"
     },
     "repositories": [
         {
@@ -78,7 +90,8 @@
         "code-fix": [
             "@cs-fix",
             "@phpstan"
-        ]
+        ],
+        "test": "vendor/bin/phpunit --testdox"
     },
     "conflict": {
         "symfony/symfony": "*"

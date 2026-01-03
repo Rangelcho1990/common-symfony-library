@@ -1,0 +1,20 @@
+services:
+    CSL\Module\LoggerBundle\CslLoggerFactory:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        public: true
+parameters:
+    handlers:
+        StreamHandler:
+            host: "php://stdout"
+            level: 100
+            format: '{"timestamp":"","level":"","messageTemplate":"","requestUid":"","requestBody":"","resource":"","method":"","ip":"","other":"","responseBody":"","message":"","file":"","line":"","code":0,"stackTrace":""}'
+#        GelfHandlerTcp:
+#            host: "127.0.0.1" # default host for TcpTransport
+#            port: 12201 # default port for TcpTransport
+#            source: "GelfHandlerTcp" #example
+#            level: 100
+#            format: '{"timestamp":"","level":"","messageTemplate":"","requestUid":"","requestBody":"","resource":"","method":"","ip":"","other":"","responseBody":"","message":"","file":"","line":"","code":0,"stackTrace":""}'
+    app_name: "common-service-template-api"

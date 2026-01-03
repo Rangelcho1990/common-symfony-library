@@ -1,5 +1,10 @@
+app.swagger_ui:
+    path: /api/doc
+    methods: GET
+    defaults: { _controller: nelmio_api_doc.controller.swagger_ui }
+
 controllers:
     resource:
-        path: ../src/Controller/
-        namespace: CSL\Controller
+        path: ../src/Endpoints/
+        namespace: CSL\Endpoints
     type: attribute

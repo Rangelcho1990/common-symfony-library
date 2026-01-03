@@ -1,0 +1,10 @@
+services:
+    # Handler Registry and Factory Pattern
+    CSL\Module\LoggerBundle\Handler\Registry\HandlerRegistryInterface:
+        class: CSL\Module\LoggerBundle\Handler\Registry\HandlerRegistry
+        autowire: true
+
+    CSL\Module\LoggerBundle\Handler\Factory\HandlerFactoryInterface:
+        class: CSL\Module\LoggerBundle\Handler\Factory\HandlerFactory
+        autowire: true
+

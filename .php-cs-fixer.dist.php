@@ -11,7 +11,6 @@ return (new PhpCsFixer\Config())
         '@Symfony' => true,
         'declare_strict_types' => true,
         'array_syntax' => ['syntax' => 'short'],
-        'binary_operator_spaces' => ['default' => 'align'],
         'no_unused_imports' => true,
     ])
     ->setFinder($finder);

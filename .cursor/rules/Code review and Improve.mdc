@@ -1,0 +1,11 @@
+---
+alwaysApply: false
+---
+1. Make a code review and save the response in the 1.CodeReviewImprove MD file, if the file exist increes the number with one - 1.CodeReviewImprove ==> 2.CodeReviewImprove, etc. Separete two section Code Review and Improve. File need to be save in the .docs directory, if need create the directory.
+2. Add the following section in the following order:
+    - section Code Review.
+    - section Code Improve.
+    - section Architectural Improvements.
+    - section Testing Recommendations.
+    - section Summary.
+    - section that compares the progress with the previous versions.

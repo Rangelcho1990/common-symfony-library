@@ -20,7 +20,7 @@ final class Version20250910124506 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->addSql('
-           CREATE TABLE `users` (
+           CREATE TABLE `examples` (
               `id` int(10) UNSIGNED AUTO_INCREMENT NOT NULL,
               `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
             PRIMARY KEY(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
