@@ -15,7 +15,7 @@ interface CslLogTraceDataDTOInterface
         ?string $responseBody = null,
         ?string $message = null,
         ?string $file = null,
-        ?string $line = null,
+        ?int $line = null,
         ?array $stackTrace = null,
         ?int $code = null,
     ): void;
@@ -27,7 +27,7 @@ interface CslLogTraceDataDTOInterface
      *      responseBody: string|null,
      *      message: string|null,
      *      file: string|null,
-     *      line: string|null,
+     *      line: int|null,
      *      stackTrace: array<mixed>|null,
      *      code: int|null
      * }
