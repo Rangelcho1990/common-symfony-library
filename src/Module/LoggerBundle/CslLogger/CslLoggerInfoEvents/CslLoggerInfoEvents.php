@@ -18,7 +18,7 @@ class CslLoggerInfoEvents implements CslLoggerInfoEventsInterface
         CslLogRequestDataDTOInterface $cslLogRequestDataDTO,
         CslLogTraceDataDTOInterface $cslLogTraceDataDTO,
     ): void {
-        $this->logger->error(
+        $this->logger->debug(
             'Debug',
             array_merge(
                 $cslLogRequestDataDTO->getLogRequestData(),
@@ -31,7 +31,7 @@ class CslLoggerInfoEvents implements CslLoggerInfoEventsInterface
         CslLogRequestDataDTOInterface $cslLogRequestDataDTO,
         CslLogTraceDataDTOInterface $cslLogTraceDataDTO,
     ): void {
-        $this->logger->error(
+        $this->logger->info(
             'Info',
             array_merge(
                 $cslLogRequestDataDTO->getLogRequestData(),
@@ -44,7 +44,7 @@ class CslLoggerInfoEvents implements CslLoggerInfoEventsInterface
         CslLogRequestDataDTOInterface $cslLogRequestDataDTO,
         CslLogTraceDataDTOInterface $cslLogTraceDataDTO,
     ): void {
-        $this->logger->error(
+        $this->logger->notice(
             'Notice',
             array_merge(
                 $cslLogRequestDataDTO->getLogRequestData(),
