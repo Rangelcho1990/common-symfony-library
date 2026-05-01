@@ -7,15 +7,16 @@ namespace CSL\Module\LoggerBundle\DTO;
 interface CslLogTraceDataDTOInterface
 {
     /**
+     * @param array<mixed> $other
      * @param array<mixed> $stackTrace
      */
     public function prepareLogTraceData(
         string $messageTemplate,
-        ?string $other = null,
+        ?array $other = null,
         ?string $responseBody = null,
         ?string $message = null,
         ?string $file = null,
-        ?string $line = null,
+        ?int $line = null,
         ?array $stackTrace = null,
         ?int $code = null,
     ): void;
@@ -23,11 +24,11 @@ interface CslLogTraceDataDTOInterface
     /**
      * @return array{
      *      messageTemplate: string,
-     *      other: string|null,
+     *      other: array<mixed>|null,
      *      responseBody: string|null,
      *      message: string|null,
      *      file: string|null,
-     *      line: string|null,
+     *      line: int|null,
      *      stackTrace: array<mixed>|null,
      *      code: int|null
      * }

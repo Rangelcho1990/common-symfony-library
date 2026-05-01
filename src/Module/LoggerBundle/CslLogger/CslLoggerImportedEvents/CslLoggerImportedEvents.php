@@ -18,7 +18,7 @@ class CslLoggerImportedEvents implements CslLoggerImportedEventsInterface
         CslLogRequestDataDTOInterface $cslLogRequestDataDTO,
         CslLogTraceDataDTOInterface $cslLogTraceDataDTO,
     ): void {
-        $this->logger->error(
+        $this->logger->emergency(
             'Emergency',
             array_merge(
                 $cslLogRequestDataDTO->getLogRequestData(),
@@ -31,7 +31,7 @@ class CslLoggerImportedEvents implements CslLoggerImportedEventsInterface
         CslLogRequestDataDTOInterface $cslLogRequestDataDTO,
         CslLogTraceDataDTOInterface $cslLogTraceDataDTO,
     ): void {
-        $this->logger->error(
+        $this->logger->alert(
             'Alert',
             array_merge(
                 $cslLogRequestDataDTO->getLogRequestData(),

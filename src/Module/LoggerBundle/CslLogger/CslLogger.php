@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CSL\Module\LoggerBundle\CslLogger;
 
 use CSL\Module\LoggerBundle\CslLogger\CslLoggerCriticalEvents\CslLoggerCriticalEvents;
-use CSL\Module\LoggerBundle\CslLogger\CslLoggerInfoEvents\CslLoggerInfoEvents;
 use CSL\Module\LoggerBundle\CslLogger\CslLoggerImportedEvents\CslLoggerImportedEvents;
+use CSL\Module\LoggerBundle\CslLogger\CslLoggerInfoEvents\CslLoggerInfoEvents;
 use Psr\Log\LoggerInterface;
 
 final class CslLogger implements CslLoggerInterface
@@ -15,10 +15,7 @@ final class CslLogger implements CslLoggerInterface
     private CslLoggerInfoEvents $infoEvents;
     private CslLoggerImportedEvents $importedEvents;
 
-    /** @var array<string, mixed> */
-    private array $context = [];
-
-    public function __construct(private readonly LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger)
     {
         $this->criticalEvents = new CslLoggerCriticalEvents($logger);
         $this->infoEvents = new CslLoggerInfoEvents($logger);

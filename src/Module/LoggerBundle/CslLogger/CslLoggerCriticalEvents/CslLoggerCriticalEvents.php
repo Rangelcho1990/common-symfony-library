@@ -18,7 +18,7 @@ class CslLoggerCriticalEvents implements CslLoggerCriticalEventsInterface
         CslLogRequestDataDTOInterface $cslLogRequestDataDTO,
         CslLogTraceDataDTOInterface $cslLogTraceDataDTO,
     ): void {
-        $this->logger->error(
+        $this->logger->critical(
             'Critical',
             array_merge(
                 $cslLogRequestDataDTO->getLogRequestData(),
@@ -44,7 +44,7 @@ class CslLoggerCriticalEvents implements CslLoggerCriticalEventsInterface
         CslLogRequestDataDTOInterface $cslLogRequestDataDTO,
         CslLogTraceDataDTOInterface $cslLogTraceDataDTO,
     ): void {
-        $this->logger->error(
+        $this->logger->warning(
             'Warning',
             array_merge(
                 $cslLogRequestDataDTO->getLogRequestData(),
