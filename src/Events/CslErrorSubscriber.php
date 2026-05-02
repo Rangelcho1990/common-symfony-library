@@ -7,6 +7,7 @@ namespace CSL\Events;
 use CSL\Module\LoggerBundle\DTO\CslLogRequestDataDTO;
 use CSL\Module\LoggerBundle\DTO\CslLogTraceDataDTO;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -15,14 +16,16 @@ class CslErrorSubscriber extends CslAbstractSubscriber
 {
     public function onKernelException(ExceptionEvent $event): void
     {
-        $requestUid = Uuid::uuid1();
+        if ($event->isMainRequest()) {
+            $event->getRequest()->attributes->set('_csl_error_handled', true);
+        }
 
         $cslLogRequestDataDTO = new CslLogRequestDataDTO();
         $cslLogRequestDataDTO->prepareLogRequestData(
             $event->getRequest()->request->all(),
             $event->getRequest()->getRequestUri(),
             $event->getRequest()->getMethod(),
-            $requestUid,
+            $this->getRequestUid($event),
             $event->getRequest()->getClientIps(),
         );
 
@@ -63,5 +66,18 @@ class CslErrorSubscriber extends CslAbstractSubscriber
         return [
             KernelEvents::EXCEPTION => ['onKernelException'],
         ];
+    }
+
+    private function getRequestUid(ExceptionEvent $event): UuidInterface
+    {
+        $requestUid = $event->getRequest()->attributes->get('requestUid');
+        if ($requestUid instanceof UuidInterface) {
+            return $requestUid;
+        }
+
+        $requestUid = Uuid::uuid1();
+        $event->getRequest()->attributes->set('requestUid', $requestUid);
+
+        return $requestUid;
     }
 }
