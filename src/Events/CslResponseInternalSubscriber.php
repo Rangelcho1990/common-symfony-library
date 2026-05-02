@@ -23,7 +23,7 @@ class CslResponseInternalSubscriber extends CslAbstractSubscriber
         $request = $event->getRequest();
         $response = $event->getResponse();
 
-        if ($request->attributes->getBoolean('_csl_error_handled')) {
+        if ($request->attributes->getBoolean(self::CSL_ERROR_HANDLED)) {
             return;
         }
 

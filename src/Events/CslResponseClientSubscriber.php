@@ -45,7 +45,7 @@ class CslResponseClientSubscriber extends CslAbstractSubscriber
             $event->getRequest()->getClientIps(),
         );
 
-        $clientId = $event->getRequest()->attributes->get('clientId');
+        $clientId = $event->getRequest()->attributes->get(self::CLIENT_ID);
         if (is_string($clientId)) {
             $this->clientCommunicatorInterface->stopTimer($clientId);
         }
@@ -88,13 +88,13 @@ class CslResponseClientSubscriber extends CslAbstractSubscriber
 
     private function getRequestUid(ResponseEvent $event): UuidInterface
     {
-        $requestUid = $event->getRequest()->attributes->get('requestUid');
+        $requestUid = $event->getRequest()->attributes->get(self::REQUEST_UID);
         if ($requestUid instanceof UuidInterface) {
             return $requestUid;
         }
 
-        $requestUid = Uuid::uuid1();
-        $event->getRequest()->attributes->set('requestUid', $requestUid);
+        $requestUid = Uuid::uuid7();
+        $event->getRequest()->attributes->set(self::REQUEST_UID, $requestUid);
 
         return $requestUid;
     }

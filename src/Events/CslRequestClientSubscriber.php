@@ -7,6 +7,7 @@ namespace CSL\Events;
 use CSL\DTO\Events\CslEventsSubscriberDTO;
 use CSL\Service\ClientCommunicator\ClientCommunicatorInterface;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -27,11 +28,19 @@ class CslRequestClientSubscriber extends CslAbstractSubscriber
             return;
         }
 
-        $requestUid = Uuid::uuid1();
-        $clientId = 'Communication_'.$requestUid->toString();
+        $request = $event->getRequest();
 
-        $event->getRequest()->attributes->set('requestUid', $requestUid);
-        $event->getRequest()->attributes->set('clientId', $clientId);
+        $requestUid = $request->attributes->get(self::REQUEST_UID);
+        if (!$requestUid instanceof UuidInterface) {
+            $requestUid = Uuid::uuid7();
+            $request->attributes->set(self::REQUEST_UID, $requestUid);
+        }
+
+        $clientId = $request->attributes->get(self::CLIENT_ID);
+        if (!is_string($clientId)) {
+            $clientId = 'Communication_'.$requestUid->toString();
+            $request->attributes->set(self::CLIENT_ID, $clientId);
+        }
 
         $this->clientCommunicatorInterface->startTimer($clientId);
     }

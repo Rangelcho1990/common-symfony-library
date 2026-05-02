@@ -17,7 +17,7 @@ class CslErrorSubscriber extends CslAbstractSubscriber
     public function onKernelException(ExceptionEvent $event): void
     {
         if ($event->isMainRequest()) {
-            $event->getRequest()->attributes->set('_csl_error_handled', true);
+            $event->getRequest()->attributes->set(self::CSL_ERROR_HANDLED, true);
         }
 
         $cslLogRequestDataDTO = new CslLogRequestDataDTO();
@@ -70,13 +70,13 @@ class CslErrorSubscriber extends CslAbstractSubscriber
 
     private function getRequestUid(ExceptionEvent $event): UuidInterface
     {
-        $requestUid = $event->getRequest()->attributes->get('requestUid');
+        $requestUid = $event->getRequest()->attributes->get(self::REQUEST_UID);
         if ($requestUid instanceof UuidInterface) {
             return $requestUid;
         }
 
-        $requestUid = Uuid::uuid1();
-        $event->getRequest()->attributes->set('requestUid', $requestUid);
+        $requestUid = Uuid::uuid7();
+        $event->getRequest()->attributes->set(self::REQUEST_UID, $requestUid);
 
         return $requestUid;
     }

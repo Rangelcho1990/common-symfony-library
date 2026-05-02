@@ -13,6 +13,10 @@ abstract class CslAbstractSubscriber implements EventSubscriberInterface
 {
     use RequestDataTrait;
 
+    protected const REQUEST_UID = 'requestUid';
+    protected const CSL_ERROR_HANDLED = '_csl_error_handled';
+    protected const CLIENT_ID = 'clientId';
+
     protected CslEventsSubscriberDTO $cslEventsSubscriberDTO;
     protected CslLogger $cslLogger;
 
