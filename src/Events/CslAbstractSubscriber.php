@@ -17,6 +17,7 @@ abstract class CslAbstractSubscriber implements EventSubscriberInterface
     protected CslEventsSubscriberDTO $cslEventsSubscriberDTO;
     protected CslLogger $cslLogger;
     protected ?UuidInterface $requestUid = null;
+    protected ?string $clientId = null;
 
     public function __construct(CslEventsSubscriberDTO $cslEventsSubscriberDTO)
     {
