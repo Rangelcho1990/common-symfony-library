@@ -8,11 +8,12 @@ use CSL\DTO\Events\CslEventsSubscriberDTO;
 use CSL\Module\LoggerBundle\DTO\CslLogRequestDataDTO;
 use CSL\Module\LoggerBundle\DTO\CslLogTraceDataDTO;
 use CSL\Service\ClientCommunicator\ClientCommunicatorInterface;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class CslClientCommunicatorSubscriber extends CslAbstractSubscriber
+class CslResponseClientSubscriber extends CslAbstractSubscriber
 {
     private ClientCommunicatorInterface $clientCommunicatorInterface;
 
@@ -23,13 +24,13 @@ class CslClientCommunicatorSubscriber extends CslAbstractSubscriber
         $this->clientCommunicatorInterface = $clientCommunicatorInterface;
     }
 
-    public function onKernelRequest(RequestEvent $event): void
-    {
-        $this->clientCommunicatorInterface->startTimer($this->clientId);
-    }
-
     public function onKernelResponse(ResponseEvent $event): void
     {
+        if (!$event->isMainRequest()) {
+            return;
+        }
+
+        // log communication time
         $requestData = array_merge(
             $this->getRequestQueryData($event->getRequest()),
             $this->getRequestRawData($event->getRequest()),
@@ -40,14 +41,17 @@ class CslClientCommunicatorSubscriber extends CslAbstractSubscriber
             $requestData,
             $event->getRequest()->getRequestUri(),
             $event->getRequest()->getMethod(),
-            $this->requestUid,
+            $this->getRequestUid($event),
             $event->getRequest()->getClientIps(),
         );
 
-        $this->clientCommunicatorInterface->stopTimer($this->clientId);
+        $clientId = $event->getRequest()->attributes->get(self::CLIENT_ID);
+        if (is_string($clientId)) {
+            $this->clientCommunicatorInterface->stopTimer($clientId);
+        }
 
         $other = [
-            'communicationTime' => $this->clientCommunicatorInterface->getCommunicationTime($this->clientId),
+            'communicationTime' => is_string($clientId) ? $this->clientCommunicatorInterface->getCommunicationTime($clientId) : [],
         ];
 
         $content = $event->getResponse()->getContent();
@@ -64,6 +68,7 @@ class CslClientCommunicatorSubscriber extends CslAbstractSubscriber
             null,
             $event->getResponse()->getStatusCode()
         );
+        unset($clientId, $other, $content);
 
         $this->cslLogger->getInfoEvents()->logInfo(
             $cslLogRequestDataDTO,
@@ -77,8 +82,20 @@ class CslClientCommunicatorSubscriber extends CslAbstractSubscriber
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::REQUEST => ['onKernelRequest', 300],
             KernelEvents::RESPONSE => ['onKernelResponse', 50],
         ];
+    }
+
+    private function getRequestUid(ResponseEvent $event): UuidInterface
+    {
+        $requestUid = $event->getRequest()->attributes->get(self::REQUEST_UID);
+        if ($requestUid instanceof UuidInterface) {
+            return $requestUid;
+        }
+
+        $requestUid = Uuid::uuid7();
+        $event->getRequest()->attributes->set(self::REQUEST_UID, $requestUid);
+
+        return $requestUid;
     }
 }

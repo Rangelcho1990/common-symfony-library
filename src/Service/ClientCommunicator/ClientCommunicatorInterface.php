@@ -10,5 +10,8 @@ interface ClientCommunicatorInterface
 
     public function stopTimer(string $clientId): void;
 
+    /**
+     * @return array{startTime?: float, endTime?: float, durationMs?: int}
+     */
     public function getCommunicationTime(string $clientId): array;
 }

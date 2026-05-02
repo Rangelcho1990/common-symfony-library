@@ -7,5 +7,8 @@ use CSL\Kernel;
 require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
 
 return function (array $context) {
-    return new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
+    $environment = is_string($context['APP_ENV'] ?? null) ? $context['APP_ENV'] : 'prod';
+    $debug = isset($context['APP_DEBUG']) ? (bool) $context['APP_DEBUG'] : false;
+
+    return new Kernel($environment, $debug);
 };
