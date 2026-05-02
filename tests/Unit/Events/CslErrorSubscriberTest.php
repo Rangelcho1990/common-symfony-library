@@ -9,6 +9,7 @@ use CSL\Events\CslErrorSubscriber;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
@@ -17,7 +18,7 @@ final class CslErrorSubscriberTest extends TestCase
     public function testSameRequestGetsIdenticalRequestUidAcrossRepeatedExceptionHandlingCalls(): void
     {
         $subscriber = $this->createSubscriber();
-        $kernel = $this->createMock(HttpKernelInterface::class);
+        $kernel = $this->createStub(HttpKernelInterface::class);
 
         $request = new Request();
 
@@ -51,7 +52,7 @@ final class CslErrorSubscriberTest extends TestCase
     public function testSubRequestsDoNotGetCslErrorHandledSet(): void
     {
         $subscriber = $this->createSubscriber();
-        $kernel = $this->createMock(HttpKernelInterface::class);
+        $kernel = $this->createStub(HttpKernelInterface::class);
         $request = new Request();
 
         $event = new ExceptionEvent(
@@ -72,7 +73,7 @@ final class CslErrorSubscriberTest extends TestCase
     public function testMainRequestDoesGetCslErrorHandledSet(): void
     {
         $subscriber = $this->createSubscriber();
-        $kernel = $this->createMock(HttpKernelInterface::class);
+        $kernel = $this->createStub(HttpKernelInterface::class);
         $request = new Request();
 
         $event = new ExceptionEvent(
@@ -90,12 +91,37 @@ final class CslErrorSubscriberTest extends TestCase
         );
     }
 
+    public function testKernelExceptionSetsJsonResponseWith500StatusAndMessage(): void
+    {
+        $subscriber = $this->createSubscriber();
+        $kernel = $this->createStub(HttpKernelInterface::class);
+        $request = new Request();
+
+        $event = new ExceptionEvent(
+            $kernel,
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            new \RuntimeException('boom', 123)
+        );
+
+        $subscriber->onKernelException($event);
+
+        $response = $event->getResponse();
+        self::assertInstanceOf(Response::class, $response);
+        self::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
+        self::assertSame('application/json', $response->headers->get('content-type'));
+
+        $decoded = json_decode((string) $response->getContent(), true);
+        self::assertIsArray($decoded);
+        self::assertSame('boom', $decoded['message'] ?? null);
+        self::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $decoded['code'] ?? null);
+    }
+
     private function createSubscriber(): CslErrorSubscriber
     {
-        $psrLogger = $this->createMock(LoggerInterface::class);
-        $psrLogger->expects(self::any())->method('error');
+        $psrLogger = $this->createStub(LoggerInterface::class);
 
-        $dto = $this->createMock(CslEventsSubscriberDTO::class);
+        $dto = $this->createStub(CslEventsSubscriberDTO::class);
         $dto->method('getCslLogger')->willReturn(new \CSL\Module\LoggerBundle\CslLogger\CslLogger($psrLogger));
 
         return new CslErrorSubscriber($dto);

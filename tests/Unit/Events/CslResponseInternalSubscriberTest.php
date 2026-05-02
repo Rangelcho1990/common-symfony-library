@@ -18,7 +18,7 @@ final class CslResponseInternalSubscriberTest extends TestCase
     public function testSameRequestKeepsIdenticalRequestUidAcrossRepeatedCalls(): void
     {
         $subscriber = $this->createSubscriber();
-        $kernel = $this->createMock(HttpKernelInterface::class);
+        $kernel = $this->createStub(HttpKernelInterface::class);
         $request = new Request();
         $request->attributes->set('requestUid', \Ramsey\Uuid\Uuid::uuid7());
 
@@ -38,7 +38,7 @@ final class CslResponseInternalSubscriberTest extends TestCase
     public function testSubRequestsDoNotTransformResponse(): void
     {
         $subscriber = $this->createSubscriber();
-        $kernel = $this->createMock(HttpKernelInterface::class);
+        $kernel = $this->createStub(HttpKernelInterface::class);
         $request = new Request();
         $response = new Response('original', 200, ['Content-Type' => 'text/plain']);
 
@@ -53,7 +53,7 @@ final class CslResponseInternalSubscriberTest extends TestCase
     public function testMainRequestTransformsResponseWhenNotErrorAndSuccessful(): void
     {
         $subscriber = $this->createSubscriber();
-        $kernel = $this->createMock(HttpKernelInterface::class);
+        $kernel = $this->createStub(HttpKernelInterface::class);
         $request = new Request();
         $response = new Response('original', 200);
 
@@ -67,7 +67,7 @@ final class CslResponseInternalSubscriberTest extends TestCase
     public function testMainRequestDoesNotTransformWhenErrorHandledFlagIsSet(): void
     {
         $subscriber = $this->createSubscriber();
-        $kernel = $this->createMock(HttpKernelInterface::class);
+        $kernel = $this->createStub(HttpKernelInterface::class);
         $request = new Request();
         $request->attributes->set('_csl_error_handled', true);
         $response = new Response('original', 200);
@@ -81,7 +81,7 @@ final class CslResponseInternalSubscriberTest extends TestCase
     public function testMainRequestDoesNotTransformWhenResponseIsErrorStatus(): void
     {
         $subscriber = $this->createSubscriber();
-        $kernel = $this->createMock(HttpKernelInterface::class);
+        $kernel = $this->createStub(HttpKernelInterface::class);
         $request = new Request();
         $response = new Response('original', 500);
 
@@ -94,8 +94,8 @@ final class CslResponseInternalSubscriberTest extends TestCase
 
     private function createSubscriber(): CslResponseInternalSubscriber
     {
-        $psrLogger = $this->createMock(LoggerInterface::class);
-        $dto = $this->createMock(CslEventsSubscriberDTO::class);
+        $psrLogger = $this->createStub(LoggerInterface::class);
+        $dto = $this->createStub(CslEventsSubscriberDTO::class);
         $dto->method('getCslLogger')->willReturn(new \CSL\Module\LoggerBundle\CslLogger\CslLogger($psrLogger));
 
         return new CslResponseInternalSubscriber($dto);

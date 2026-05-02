@@ -24,7 +24,7 @@ class CslStreamHandlerTest extends TestCase
         $data = [
             'level' => 100,
             'format' => 'test',
-            'host' => 'php://stdout',
+            'host' => 'php://memory',
             'port' => null,
             'source' => null,
             'ignoreConnectionErrors' => null,
@@ -43,9 +43,8 @@ class CslStreamHandlerTest extends TestCase
 
     public function testValidateCslStreamHandlerHandlerInstance(): void
     {
-        $cslStreamHandler = $this->getMockBuilder(CslHandlerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $cslStreamHandler = $this->createStub(CslHandlerInterface::class);
+        $cslStreamHandler->method('getHandler')->willReturn($this->createStub(HandlerInterface::class));
 
         $this->assertInstanceOf(HandlerInterface::class, $cslStreamHandler->getHandler());
     }

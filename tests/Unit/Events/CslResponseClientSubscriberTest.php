@@ -23,7 +23,7 @@ final class CslResponseClientSubscriberTest extends TestCase
         $communicator->expects(self::exactly(2))->method('getCommunicationTime')->willReturn([]);
 
         $subscriber = $this->createSubscriber($communicator);
-        $kernel = $this->createMock(HttpKernelInterface::class);
+        $kernel = $this->createStub(HttpKernelInterface::class);
         $request = new Request();
         $request->attributes->set('clientId', 'Communication_x');
         $response = new Response('ok', 200);
@@ -47,8 +47,8 @@ final class CslResponseClientSubscriberTest extends TestCase
         $communicator->expects(self::never())->method('stopTimer');
         $communicator->expects(self::never())->method('getCommunicationTime');
 
-        $subscriber = $this->createSubscriber($communicator, expectInfoLog: false);
-        $kernel = $this->createMock(HttpKernelInterface::class);
+        $subscriber = $this->createSubscriber($communicator);
+        $kernel = $this->createStub(HttpKernelInterface::class);
         $request = new Request();
         $request->attributes->set('clientId', 'Communication_x');
         $response = new Response('ok', 200);
@@ -64,7 +64,7 @@ final class CslResponseClientSubscriberTest extends TestCase
         $communicator->expects(self::once())->method('getCommunicationTime')->with('Communication_x')->willReturn([]);
 
         $subscriber = $this->createSubscriber($communicator);
-        $kernel = $this->createMock(HttpKernelInterface::class);
+        $kernel = $this->createStub(HttpKernelInterface::class);
         $request = new Request();
         $request->attributes->set('clientId', 'Communication_x');
         $response = new Response('original', 200, ['Content-Type' => 'text/plain']);
@@ -77,16 +77,29 @@ final class CslResponseClientSubscriberTest extends TestCase
         self::assertSame('text/plain', $response->headers->get('Content-Type'));
     }
 
-    private function createSubscriber(ClientCommunicatorInterface $communicator, bool $expectInfoLog = true): CslResponseClientSubscriber
+    public function testMainRequestWithoutClientIdDoesNotStopTimerButStillLogsAndSetsRequestUid(): void
     {
-        $psrLogger = $this->createMock(LoggerInterface::class);
-        if ($expectInfoLog) {
-            $psrLogger->expects(self::any())->method('info');
-        } else {
-            $psrLogger->expects(self::never())->method('info');
-        }
+        $communicator = $this->createMock(ClientCommunicatorInterface::class);
+        $communicator->expects(self::never())->method('stopTimer');
+        $communicator->expects(self::never())->method('getCommunicationTime');
 
-        $dto = $this->createMock(CslEventsSubscriberDTO::class);
+        $subscriber = $this->createSubscriber($communicator);
+        $kernel = $this->createStub(HttpKernelInterface::class);
+        $request = new Request();
+        $response = new Response('original', 200);
+
+        $event = new ResponseEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, $response);
+        $subscriber->onKernelResponse($event);
+
+        self::assertTrue($request->attributes->has('requestUid'));
+        self::assertSame('original', $response->getContent());
+    }
+
+    private function createSubscriber(ClientCommunicatorInterface $communicator): CslResponseClientSubscriber
+    {
+        $psrLogger = $this->createStub(LoggerInterface::class);
+
+        $dto = $this->createStub(CslEventsSubscriberDTO::class);
         $dto->method('getCslLogger')->willReturn(new \CSL\Module\LoggerBundle\CslLogger\CslLogger($psrLogger));
 
         return new CslResponseClientSubscriber($dto, $communicator);

@@ -22,7 +22,7 @@ class CslLogFormatterTest extends TestCase
         $data = [
             'level' => 100,
             'format' => 'test',
-            'host' => 'php://stdout',
+            'host' => 'php://memory',
             'port' => null,
             'source' => null,
             'ignoreConnectionErrors' => null,
@@ -41,9 +41,7 @@ class CslLogFormatterTest extends TestCase
 
     public function testValidateCslLogFormatterInstance(): void
     {
-        $cslLogFormatter = $this->getMockBuilder(CslLogFormatter::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $cslLogFormatter = new CslLogFormatter($this->loggerConfigurationDTO->getFormat());
 
         $this->assertInstanceOf(LineFormatter::class, $cslLogFormatter);
     }
