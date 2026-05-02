@@ -8,16 +8,34 @@ use CSL\Endpoints\Examples\ExampleList\Controller\Transformer\Response\ExampleTr
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class CslResponseTransformerSubscriber extends CslAbstractSubscriber
+/**
+ * Transforms internal response payloads before returning to the client.
+ * Keep this subscriber opt-in (route/flag guarded) to avoid rewriting error responses.
+ */
+class CslResponseInternalSubscriber extends CslAbstractSubscriber
 {
     public function onKernelResponse(ResponseEvent $event): void
     {
+        if (!$event->isMainRequest()) {
+            return;
+        }
+
+        $request = $event->getRequest();
+        $response = $event->getResponse();
+
+        if ($request->attributes->getBoolean('_csl_error_handled')) {
+            return;
+        }
+
+        if ($response->getStatusCode() >= 400) {
+            return;
+        }
+
         // TODO: get constraint dynamically.
         $constraint = new ExampleTransformer();
         $transformedContent = $constraint->transformContent();
 
-        $event
-            ->getResponse()
+        $response
             ->setContent($transformedContent)
             ->setStatusCode($constraint->getStatusCode())
             ->headers->set('Content-Type', $constraint->getContentType());
