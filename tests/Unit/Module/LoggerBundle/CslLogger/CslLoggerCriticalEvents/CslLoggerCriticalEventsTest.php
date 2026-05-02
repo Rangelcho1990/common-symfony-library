@@ -13,13 +13,27 @@ use Psr\Log\LoggerInterface;
 
 final class CslLoggerCriticalEventsTest extends TestCase
 {
+    /**
+     * @return array{
+     *   critical: array<mixed>,
+     *   error: array<mixed>,
+     *   warning: array<mixed>,
+     * }
+     */
     public static function provideCriticalMethods(): iterable
     {
-        yield 'critical' => ['logCritical', 'critical', 'Critical'];
-        yield 'error' => ['logError', 'error', 'Error'];
-        yield 'warning' => ['logWarning', 'warning', 'Warning'];
+        return [
+            'critical' => ['logCritical', 'critical', 'Critical'],
+            'error' => ['logError', 'error', 'Error'],
+            'warning' => ['logWarning', 'warning', 'Warning'],
+        ];
     }
 
+    /**
+     * @param non-empty-string $method
+     * @param non-empty-string $psrMethod
+     * @param non-empty-string $message
+     */
     #[DataProvider('provideCriticalMethods')]
     public function testItLogsWithMergedContext(string $method, string $psrMethod, string $message): void
     {
@@ -40,4 +54,3 @@ final class CslLoggerCriticalEventsTest extends TestCase
         $events->{$method}($requestDto, $traceDto);
     }
 }
-

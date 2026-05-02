@@ -34,4 +34,3 @@ final class CslLoggerTest extends TestCase
         self::assertSame($imported1, $imported2);
     }
 }
-

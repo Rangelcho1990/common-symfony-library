@@ -13,13 +13,27 @@ use Psr\Log\LoggerInterface;
 
 final class CslLoggerInfoEventsTest extends TestCase
 {
-    public static function provideInfoMethods(): iterable
+    /**
+     * @return array{
+     *   debug: array<mixed>,
+     *   info: array<mixed>,
+     *   notice: array<mixed>,
+     * }
+     */
+    public static function provideInfoMethods(): array
     {
-        yield 'debug' => ['logDebug', 'debug', 'Debug'];
-        yield 'info' => ['logInfo', 'info', 'Info'];
-        yield 'notice' => ['logNotice', 'notice', 'Notice'];
+        return [
+            'debug' => ['logDebug', 'debug', 'Debug'],
+            'info' => ['logInfo', 'info', 'Info'],
+            'notice' => ['logNotice', 'notice', 'Notice'],
+        ];
     }
 
+    /**
+     * @param non-empty-string $method
+     * @param non-empty-string $psrMethod
+     * @param non-empty-string $message
+     */
     #[DataProvider('provideInfoMethods')]
     public function testItLogsWithMergedContext(string $method, string $psrMethod, string $message): void
     {
@@ -40,4 +54,3 @@ final class CslLoggerInfoEventsTest extends TestCase
         $events->{$method}($requestDto, $traceDto);
     }
 }
-

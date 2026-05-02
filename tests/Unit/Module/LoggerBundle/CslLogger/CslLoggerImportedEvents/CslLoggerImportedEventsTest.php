@@ -13,12 +13,25 @@ use Psr\Log\LoggerInterface;
 
 final class CslLoggerImportedEventsTest extends TestCase
 {
+    /**
+     * @return array{
+     *   emergency: array<mixed>,
+     *   alert: array<mixed>,
+     * }
+     */
     public static function provideImportedMethods(): iterable
     {
-        yield 'emergency' => ['logEmergency', 'emergency', 'Emergency'];
-        yield 'alert' => ['logAlert', 'alert', 'Alert'];
+        return [
+            'emergency' => ['logEmergency', 'emergency', 'Emergency'],
+            'alert' => ['logAlert', 'alert', 'Alert'],
+        ];
     }
 
+    /**
+     * @param non-empty-string $method
+     * @param non-empty-string $psrMethod
+     * @param non-empty-string $message
+     */
     #[DataProvider('provideImportedMethods')]
     public function testItLogsWithMergedContext(string $method, string $psrMethod, string $message): void
     {
@@ -39,4 +52,3 @@ final class CslLoggerImportedEventsTest extends TestCase
         $events->{$method}($requestDto, $traceDto);
     }
 }
-

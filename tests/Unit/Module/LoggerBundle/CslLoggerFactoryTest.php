@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace CSL\Tests\Unit\Module\LoggerBundle;
 
 use CSL\Exceptions\NotImplementedException;
+use CSL\Module\ErrorHandler\AbstractErrorHandler;
 use CSL\Module\LoggerBundle\CslLoggerFactory;
 use CSL\Module\LoggerBundle\Handler\Factory\HandlerFactoryInterface;
-use CSL\Module\ErrorHandler\AbstractErrorHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerExceptionInterface;
