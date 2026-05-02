@@ -25,6 +25,9 @@ class ClientCommunicator implements ClientCommunicatorInterface
         $this->timers[$clientId]['endTime'] = microtime(true);
     }
 
+    /**
+     * @return array{startTime?: float, endTime?: float, durationMs?: int}
+     */
     public function getCommunicationTime(string $clientId): array
     {
         if (!isset($this->timers[$clientId])) {

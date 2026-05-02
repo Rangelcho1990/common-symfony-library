@@ -6,6 +6,7 @@ namespace CSL\Events;
 
 use CSL\Module\LoggerBundle\DTO\CslLogRequestDataDTO;
 use CSL\Module\LoggerBundle\DTO\CslLogTraceDataDTO;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -14,12 +15,14 @@ class CslErrorSubscriber extends CslAbstractSubscriber
 {
     public function onKernelException(ExceptionEvent $event): void
     {
+        $requestUid = Uuid::uuid1();
+
         $cslLogRequestDataDTO = new CslLogRequestDataDTO();
         $cslLogRequestDataDTO->prepareLogRequestData(
             $event->getRequest()->request->all(),
             $event->getRequest()->getRequestUri(),
             $event->getRequest()->getMethod(),
-            $this->requestUid,
+            $requestUid,
             $event->getRequest()->getClientIps(),
         );
 
