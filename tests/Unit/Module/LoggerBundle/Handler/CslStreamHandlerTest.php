@@ -43,9 +43,10 @@ class CslStreamHandlerTest extends TestCase
 
     public function testValidateCslStreamHandlerHandlerInstance(): void
     {
-        $cslStreamHandler = $this->createStub(CslHandlerBuilderInterface::class);
-        $cslStreamHandler->method('getHandler')->willReturn($this->createStub(HandlerInterface::class));
+        $cslStreamHandler = new CslStreamHandler();
+        $cslStreamHandler->setLoggerConfiguration($this->loggerConfigurationDTO);
 
+        $this->assertInstanceOf(CslHandlerBuilderInterface::class, $cslStreamHandler);
         $this->assertInstanceOf(HandlerInterface::class, $cslStreamHandler->getHandler());
     }
 
