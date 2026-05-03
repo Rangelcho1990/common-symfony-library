@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CSL\Tests\Unit\Module\LoggerBundle\Handler;
 
-use CSL\DTO\Logger\LoggerConfigurationDTO;
-use CSL\Module\LoggerBundle\Handler\CslHandlerInterface;
+use CSL\Module\LoggerBundle\DTO\LoggerConfigurationDTO;
+use CSL\Module\LoggerBundle\Handler\CslHandlerBuilderInterface;
 use CSL\Module\LoggerBundle\Handler\CslStreamHandler;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Level;
@@ -24,7 +24,7 @@ class CslStreamHandlerTest extends TestCase
         $data = [
             'level' => 100,
             'format' => 'test',
-            'host' => 'php://stdout',
+            'host' => 'php://memory',
             'port' => null,
             'source' => null,
             'ignoreConnectionErrors' => null,
@@ -43,10 +43,10 @@ class CslStreamHandlerTest extends TestCase
 
     public function testValidateCslStreamHandlerHandlerInstance(): void
     {
-        $cslStreamHandler = $this->getMockBuilder(CslHandlerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $cslStreamHandler = new CslStreamHandler();
+        $cslStreamHandler->setLoggerConfiguration($this->loggerConfigurationDTO);
 
+        $this->assertInstanceOf(CslHandlerBuilderInterface::class, $cslStreamHandler);
         $this->assertInstanceOf(HandlerInterface::class, $cslStreamHandler->getHandler());
     }
 

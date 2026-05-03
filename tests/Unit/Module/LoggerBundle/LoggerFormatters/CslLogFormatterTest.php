@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CSL\Tests\Unit\Module\LoggerBundle\LoggerFormatters;
 
-use CSL\DTO\Logger\LoggerConfigurationDTO;
+use CSL\Module\LoggerBundle\DTO\LoggerConfigurationDTO;
 use CSL\Module\LoggerBundle\LoggerFormatters\CslLogFormatter;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Level;
@@ -22,7 +22,7 @@ class CslLogFormatterTest extends TestCase
         $data = [
             'level' => 100,
             'format' => 'test',
-            'host' => 'php://stdout',
+            'host' => 'php://memory',
             'port' => null,
             'source' => null,
             'ignoreConnectionErrors' => null,
@@ -41,9 +41,7 @@ class CslLogFormatterTest extends TestCase
 
     public function testValidateCslLogFormatterInstance(): void
     {
-        $cslLogFormatter = $this->getMockBuilder(CslLogFormatter::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $cslLogFormatter = new CslLogFormatter($this->loggerConfigurationDTO->getFormat());
 
         $this->assertInstanceOf(LineFormatter::class, $cslLogFormatter);
     }

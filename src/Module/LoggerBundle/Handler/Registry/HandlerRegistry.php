@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace CSL\Module\LoggerBundle\Handler\Registry;
 
 use CSL\Exceptions\NotImplementedException;
-use CSL\Module\LoggerBundle\Handler\CslHandlerInterface;
+use CSL\Module\LoggerBundle\Handler\CslHandlerBuilderInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class HandlerRegistry implements HandlerRegistryInterface
 {
-    /** @var array<string, CslHandlerInterface> */
+    /** @var array<string, CslHandlerBuilderInterface> */
     private array $handlers = [];
 
     public function __construct(
@@ -25,20 +25,20 @@ class HandlerRegistry implements HandlerRegistryInterface
      * @throws NotFoundExceptionInterface
      * @throws NotImplementedException
      */
-    public function getHandler(string $handlerName): CslHandlerInterface
+    public function getHandler(string $handlerName): CslHandlerBuilderInterface
     {
-        if (!$this->hasHandler($handlerName)) {
+        if (!isset($this->handlers[$handlerName])) {
             // Try to get from container if not in registry
             if ($this->container->has($handlerName)) {
                 $handler = $this->container->get($handlerName);
 
-                if ($handler instanceof CslHandlerInterface) {
+                if ($handler instanceof CslHandlerBuilderInterface) {
                     $this->registerHandler($handlerName, $handler);
 
                     return $handler;
                 }
 
-                throw new \TypeError('Handler "'.$handlerName.'" must implement CslHandlerInterface');
+                throw new \TypeError('Handler "'.$handlerName.'" must implement CslHandlerBuilderInterface');
             }
 
             throw new NotImplementedException("Handler '{$handlerName}' not found");
@@ -47,12 +47,7 @@ class HandlerRegistry implements HandlerRegistryInterface
         return $this->handlers[$handlerName];
     }
 
-    public function hasHandler(string $handlerName): bool
-    {
-        return isset($this->handlers[$handlerName]);
-    }
-
-    public function registerHandler(string $handlerName, CslHandlerInterface $handler): void
+    public function registerHandler(string $handlerName, CslHandlerBuilderInterface $handler): void
     {
         $this->handlers[$handlerName] = $handler;
     }

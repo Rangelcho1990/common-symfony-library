@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CSL\DTO\Events;
+namespace CSL\Events\DTO;
 
 use CSL\Module\LoggerBundle\CslLogger\CslLogger;
 use CSL\Module\LoggerBundle\CslLoggerFactory;

@@ -4,34 +4,35 @@ declare(strict_types=1);
 
 namespace CSL\Module\LoggerBundle\Handler;
 
-use CSL\DTO\Logger\LoggerConfigurationDTO;
+use CSL\Module\LoggerBundle\DTO\LoggerConfigurationDTO;
 use Monolog\Level;
 
-abstract class CslAbstractHandlerBuilder implements CslHandlerInterface
+abstract class CslAbstractHandlerBuilder implements CslHandlerBuilderInterface
 {
-    protected LoggerConfigurationDTO $loggerConfiguration;
+    private LoggerConfigurationDTO $loggerConfiguration;
 
     public function setLoggerConfiguration(LoggerConfigurationDTO $loggerConfiguration): void
     {
         $this->loggerConfiguration = $loggerConfiguration;
     }
 
-    protected function getLogLevel(): Level
+    public function getLoggerConfiguration(): LoggerConfigurationDTO
     {
         if (!isset($this->loggerConfiguration)) {
             throw new \RuntimeException('LoggerConfiguration must be set before getting log level');
         }
 
-        return match ($this->loggerConfiguration->getLevel()) {
-            100 => Level::Debug,
-            200 => Level::Info,
-            250 => Level::Notice,
-            300 => Level::Warning,
-            400 => Level::Error,
-            500 => Level::Critical,
-            550 => Level::Alert,
-            600 => Level::Emergency,
-            default => Level::Error,
-        };
+        return $this->loggerConfiguration;
+    }
+
+    protected function getLogLevel(): Level
+    {
+        $configuredLevel = $this->getLoggerConfiguration()->getLevel();
+        $level = Level::tryFrom($configuredLevel);
+        if (null === $level) {
+            throw new \InvalidArgumentException(sprintf('Invalid Monolog log level "%d"', $configuredLevel));
+        }
+
+        return $level;
     }
 }
