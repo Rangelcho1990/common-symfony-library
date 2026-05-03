@@ -1,271 +1,321 @@
-# Common Symfony Library - Architecture Documentation
+# Common Symfony Library - Architecture
 
 ## Overview
 
-The Common Symfony Library (CSL) is a foundational Symfony 7.3 framework library designed to provide reusable components, patterns, and utilities for Symfony-based applications. It follows modern PHP practices with strict typing, dependency injection, and clean architecture principles.
+Common Symfony Library (CSL) is a Symfony 7.4 project-style library that provides reusable application building blocks under the `CSL\` namespace. The codebase uses PHP 8.4+, strict types, Symfony dependency injection, Doctrine ORM, event subscribers, a custom Monolog-based logger module, Redis integration, and Nelmio API documentation.
+
+Composer classifies the repository as a `project` with a proprietary license. Runtime code is loaded from `src/`, and test code is loaded from `tests/`.
 
 ## Project Structure
 
-```
+```text
 common-symfony-library/
-├── bin/                          # Executable scripts
-│   ├── console                   # Symfony console application
-│   └── phpunit                   # PHPUnit test runner
-├── config/                       # Configuration files
-│   ├── bundles.php              # Bundle registration
-│   ├── packages/                # Package-specific configurations
-│   │   ├── cache.yaml           # Cache configuration
-│   │   ├── doctrine.yaml        # Doctrine ORM configuration
-│   │   ├── doctrine_migrations.yaml
-│   │   ├── framework.yaml       # Symfony framework configuration
-│   │   ├── redis_service.yaml.yaml
-│   │   ├── routing.yaml         # Routing configuration
-│   │   └── translation.yaml     # Translation configuration
-│   ├── routes/                  # Route definitions
-│   ├── services.yaml            # Service definitions
-│   └── preload.php              # Preload configuration
-├── migrations/                  # Database migrations
-├── public/                      # Web-accessible files
-│   └── index.php               # Application entry point
-├── src/                         # Source code (CSL namespace)
-│   ├── Controller/              # HTTP Controllers
-│   │   ├── CslAbstractController.php
-│   │   └── IndexController.php
-│   ├── DTO/                     # Data Transfer Objects
+├── bin/                         # Console and PHPUnit entry points
+├── config/                      # Symfony, bundle, route, and service configuration
+│   ├── packages/                # Package configuration and env-specific logger config
+│   ├── routes/                  # Supplemental route configuration
+│   ├── services/                # Focused service definitions for logger factories
+│   ├── bundles.php              # Registered Symfony bundles
+│   ├── routes.yaml              # Main route imports and API docs route
+│   └── services.yaml            # Service defaults and CSL namespace registration
+├── migrations/                  # Doctrine migration classes
+├── public/                      # Web entry point and public assets
+├── src/
+│   ├── Controller/              # Shared controller base classes
+│   ├── Endpoints/               # Attribute-routed endpoint controllers and transformers
 │   ├── Entity/                  # Doctrine entities
-│   │   └── User.php
-│   ├── Events/                  # Event classes
-│   ├── Exceptions/              # Custom exception classes
-│   │   ├── CslAbstractException.php
-│   │   ├── BadRequestException.php
-│   │   ├── NotImplementedException.php
-│   │   ├── ServiceUnavailableException.php
-│   │   └── UnauthorizedException.php
-│   ├── Kernel.php               # Application kernel
-│   ├── Module/                  # Module components
-│   └── Repository/              # Data access layer
-│       ├── CslAbstractRepository.php
-│       └── UsersRepository.php
-├── tests/                       # Test suite
-│   ├── bootstrap.php
-│   └── Functional/
-│       └── Repository/
-│           └── UserRepositoryTest.php
-└── var/                         # Variable data (cache, logs)
+│   ├── Events/                  # Kernel event subscribers and subscriber DTOs
+│   ├── Exceptions/              # Shared exception hierarchy
+│   ├── Module/                  # Reusable modules: logger, error handler, traits
+│   ├── Repository/              # Doctrine repositories
+│   ├── Service/                 # Application services
+│   └── Kernel.php               # Symfony kernel
+├── templates/                   # Twig templates
+├── tests/                       # PHPUnit unit and functional tests
+└── var/                         # Runtime cache and logs
 ```
 
-## Architecture Layers
+## Runtime Architecture
 
-### 1. Presentation Layer (Controllers)
+### HTTP Entry Points
 
-**Location**: `src/Controller/`
+The public HTTP entry point is `public/index.php`, which boots the Symfony runtime and `CSL\Kernel`.
 
-The presentation layer handles HTTP requests and responses using Symfony's controller system.
+Routes are configured in `config/routes.yaml`:
 
-#### Key Components:
+- `app.swagger_ui` exposes Nelmio Swagger UI at `/api/doc`.
+- Controllers under `src/Endpoints/` are loaded as PHP attribute routes in the `CSL\Endpoints` namespace.
 
-- **`CslAbstractController`**: Base controller class extending Symfony's `AbstractController`
-  - Provides common functionality for all controllers
-  - Serves as the foundation for application-specific controllers
+The current example endpoint is `CSL\Endpoints\Examples\ExampleList\Controller\ExampleController`, which exposes `GET /example` and returns Redis connection status through `RedisService\Core\Container\RedisContainer`.
 
-- **`IndexController`**: Example controller demonstrating:
-  - Redis service integration
-  - JSON response handling
-  - Route definitions using PHP attributes
+### Controller Layer
 
-### 2. Domain Layer (Entities)
+Controllers extend `CSL\Controller\CslAbstractController`, a thin project base class over Symfony's `AbstractController`.
 
-**Location**: `src/Entity/`
+Endpoint-specific code lives under `src/Endpoints/`. The existing example endpoint also includes `ExampleTransformer`, which demonstrates a response transformer shape for future endpoint response handling.
 
-The domain layer contains business entities using Doctrine ORM.
+### Event Layer
 
-#### Key Components:
+Kernel event subscribers live under `src/Events/` and are autoconfigured through Symfony service discovery.
 
-- **`User`**: Example entity demonstrating:
-  - Doctrine attribute-based mapping
-  - Repository association
-  - Fluent interface pattern for setters
-  - Type-safe properties with PHP 8.2+ features
+- `CslRequestClientSubscriber` listens on `KernelEvents::REQUEST` with priority `300`. It creates a request UID with UUIDv7, stores a communication client ID on the request, and starts a timer through `ClientCommunicatorInterface`.
+- `CslResponseInternalSubscriber` listens on `KernelEvents::RESPONSE` with priority `100`. It can transform successful main responses and skips responses that were already marked as CSL error responses.
+- `CslResponseClientSubscriber` listens on `KernelEvents::RESPONSE` with priority `50`. It logs request and response data, including communication timing.
+- `CslErrorSubscriber` listens on `KernelEvents::EXCEPTION`. It logs exception details as critical events, marks the request as handled, and returns a JSON error response.
+- `CslAbstractSubscriber` centralizes shared subscriber state, request-data helpers, request attribute keys, and logger access.
 
-### 3. Data Access Layer (Repositories)
+`CslEventsSubscriberDTO` provides subscribers with the parameter bag, validator, and CSL logger factory.
 
-**Location**: `src/Repository/`
+### Domain and Persistence Layer
 
-The data access layer abstracts database operations using the Repository pattern.
+Doctrine entities live in `src/Entity/` and are mapped through PHP attributes. Doctrine is configured in `config/packages/doctrine.yaml` with automatic mapping for the `CSL\Entity` namespace.
 
-#### Key Components:
+The current example model is `CSL\Entity\Example`:
 
-- **`CslAbstractRepository`**: Generic repository base class
-  - Extends Doctrine's `EntityRepository`
-  - Provides type-safe entity management
-  - Uses PHP generics for type safety
-  - Injects `EntityManagerInterface` for database operations
+- Mapped to the `examples` table.
+- Uses an integer generated primary key.
+- Stores a required `name` string with length `100`.
+- Uses fluent setters.
 
-- **`UsersRepository`**: Concrete repository implementation
-  - Extends `CslAbstractRepository` with `User` entity type
-  - Demonstrates proper repository pattern implementation
+Repositories live in `src/Repository/`:
 
-### 4. Exception Handling Layer
+- `CslAbstractRepository` extends Doctrine `EntityRepository` and uses PHPDoc generics for typed concrete repositories.
+- `ExampleRepository` binds the base repository to `CSL\Entity\Example`.
 
-**Location**: `src/Exceptions/`
+Database schema changes are stored in `migrations/` and are executed through Doctrine Migrations.
 
-Custom exception classes following HTTP status code conventions.
+### Service Layer
 
-#### Key Components:
+Reusable services live under `src/Service/`.
 
-- **`CslAbstractException`**: Base exception class
-  - Extends PHP's `Exception`
-  - Provides `toArray()` method for API responses
-  - Configurable message and code properties
+`ClientCommunicator` implements `ClientCommunicatorInterface` and tracks request communication timing by client ID. Event subscribers use it to record start time, stop time, and duration in milliseconds.
 
-- **Specific Exception Classes**:
-  - `BadRequestException` (400)
-  - `UnauthorizedException` (401)
-  - `ServiceUnavailableException` (503)
-  - `NotImplementedException` (501)
+### Exception Layer
+
+Shared exceptions live under `src/Exceptions/`.
+
+`CslAbstractException` standardizes default messages, codes, and array serialization for API-oriented errors. Concrete exception classes include:
+
+- `BadRequestException`
+- `UnauthorizedException`
+- `NotImplementedException`
+- `ParameterNotFoundException`
+- `ServiceUnavailableException`
+
+## Logger Module
+
+The custom logger module lives under `src/Module/LoggerBundle/` and builds on Monolog.
+
+### Logger Composition
+
+`CslLoggerFactory` creates a Monolog logger from configured handler parameters and registers Monolog's error handler through `CSL\Module\ErrorHandler\AbstractErrorHandler`.
+
+The resulting logger is wrapped by `CslLogger`, which exposes event-focused logger helpers:
+
+- `CslLoggerCriticalEvents`
+- `CslLoggerInfoEvents`
+- `CslLoggerImportedEvents`
+
+### Handler Construction
+
+Handlers are configured through the `handlers` parameter in environment-specific logger config files:
+
+- `config/packages/dev/logger.yaml`
+- `config/packages/test/logger.yaml`
+- `config/packages/prod/logger.yaml`
+
+Handler creation flows through:
+
+1. `LoggerConfigurationDTO`
+2. `HandlerFactory`
+3. `HandlerRegistry`
+4. A concrete handler builder
+
+Supported handler builders:
+
+- `CslStreamHandler`, exposed as the public alias `CslStreamHandler`
+- `CslGelfHandlerTcp`, exposed as the public alias `CslGelfHandlerTcp`
+
+`CslStreamHandler` writes structured JSON logs to a stream such as `php://stdout`. `CslGelfHandlerTcp` publishes logs to Graylog through GELF TCP and can ignore connection errors when configured.
+
+### Log Data Shape
+
+Logger DTOs separate request metadata from trace metadata:
+
+- `CslLogRequestDataDTO` stores request body, resource URI, method, request UID, and client IPs.
+- `CslLogTraceDataDTO` stores timestamp, message template, additional data, response body, message, file, line, stack trace, and code.
+
+`CslLogFormatter` serializes Monolog records to JSON lines with stable keys used by the subscriber logging flow.
+
+## Configuration Architecture
+
+### Bundles
+
+`config/bundles.php` registers:
+
+- Symfony FrameworkBundle
+- RedisServiceBundle
+- DoctrineBundle
+- DoctrineMigrationsBundle
+- NelmioApiDocBundle
+- TwigBundle
+- TwigExtraBundle
+- WebProfilerBundle for `dev` and `test`
+- MonologBundle
+
+### Services
+
+`config/services.yaml` imports focused logger service definitions and sets Symfony defaults:
+
+- autowiring enabled
+- autoconfiguration enabled
+- `CSL\` registered from `src/`
+- `src/Entity/` and `src/Kernel.php` excluded from generic service discovery
+
+Logger-specific service definitions are split into:
+
+- `config/services/handler_factory.yaml`
+- `config/services/logger_factory.yaml`
+
+### Environment Variables
+
+The main runtime variables are:
+
+- `APP_ENV`
+- `APP_SECRET`
+- `APP_DEBUG`
+- `DATABASE_URL`
+- `REDIS_DSN`
+- `DOCS_URI`
+
+`.env.example` provides the development template. `.env.test.example` provides the test template, including `KERNEL_CLASS=CSL\Kernel`.
+
+### Doctrine
+
+Doctrine DBAL reads `DATABASE_URL`. ORM mapping uses attributes from `src/Entity/` with the `CSL\Entity` prefix. Production config disables automatic proxy generation and uses Symfony cache pools for Doctrine query and result caches.
+
+### Nelmio API Documentation
+
+Nelmio is configured in `config/packages/nelmio_api_doc.yaml`.
+
+The active Swagger UI route is declared in `config/routes.yaml` at `/api/doc`. `config/routes/nelmio_api_doc.yaml` contains commented route examples that can be used if the docs route is moved back into the route-specific config file.
+
+### Redis
+
+Redis integration is provided by `uzunov-labs/redis-service` and configured through `config/packages/redis_service.yaml`. The package is resolved from the configured VCS repository in `composer.json`.
 
 ## Technology Stack
 
-### Core Framework
-- **Symfony 7.3**: Modern PHP framework
-- **PHP 8.2+**: Latest PHP features with strict typing
-- **Doctrine ORM 3.5**: Object-relational mapping
-- **Doctrine Migrations**: Database schema management
+### Runtime
 
-### Development Tools
-- **PHPUnit 12.3**: Testing framework
-- **PHPStan 2.1**: Static analysis
-- **PHP CS Fixer 3.87**: Code formatting
-- **Symfony Browser Kit**: Functional testing
+- PHP `>=8.4`
+- Symfony `7.4.*`
+- Doctrine ORM `^3.5`
+- Doctrine Migrations `^3.4`
+- Monolog `^3.9`
+- Symfony MonologBundle `^3.10`
+- NelmioApiDocBundle `^5.6`
+- Twig and Twig Extra Bundle
+- Ramsey UUID Doctrine
+- `uzunov-labs/redis-service` `1.0.2`
+- GELF PHP for Graylog transport
 
-### External Services
-- **Redis Service**: Caching and session management via `uzunov-labs/redis-service`
+### Development
 
-## Configuration Management
+- PHPUnit `^12.3`
+- PHPStan `^2.1`
+- PHP CS Fixer `^3.87`
+- Symfony BrowserKit, CSS Selector, Stopwatch, and WebProfilerBundle
 
-### Bundle Configuration (`config/bundles.php`)
-```php
-return [
-    Symfony\Bundle\FrameworkBundle\FrameworkBundle::class => ['all' => true],
-    RedisService\Symfony\RedisServiceBundle::class => ['all' => true],
-    Doctrine\Bundle\DoctrineBundle\DoctrineBundle::class => ['all' => true],
-    Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle::class => ['all' => true],
-];
-```
-
-### Service Configuration (`config/services.yaml`)
-- Auto-wiring enabled for dependency injection
-- Auto-configuration for commands and event subscribers
-- PSR-4 autoloading for `CSL\` namespace
-
-### Doctrine Configuration
-- Attribute-based entity mapping
-- PostgreSQL platform support
-- Environment-specific configurations (dev/test/prod)
-- Caching strategies for production
-
-## Design Patterns
-
-### 1. Repository Pattern
-- Abstracts data access logic
-- Provides type-safe entity operations
-- Enables easy testing with mock repositories
-
-### 2. Abstract Base Classes
-- `CslAbstractController`: Common controller functionality
-- `CslAbstractRepository`: Generic repository operations
-- `CslAbstractException`: Standardized exception handling
-
-### 3. Dependency Injection
-- Constructor injection for services
-- Auto-wiring configuration
-- Interface-based abstractions
-
-### 4. Fluent Interface
-- Entity setters return `$this` for method chaining
-- Improves code readability and maintainability
-
-## Code Quality Standards
+## Code Quality
 
 ### Static Analysis
-- **PHPStan Level 2**: Comprehensive static analysis
-- Type declarations for all methods and properties
-- Generic type support for repositories
 
-### Code Formatting
-- **PHP CS Fixer**: Consistent code style
-- PSR-12 compliance
-- Custom rules for project-specific standards
+`phpstan.dist.neon` runs PHPStan at level `10` across:
 
-### Testing Strategy
-- **PHPUnit**: Unit and functional testing
-- Repository testing with database integration
-- Browser kit for HTTP testing
+- `bin/`
+- `config/`
+- `public/`
+- `src/`
+- `tests/`
 
-## Development Workflow
+`config/reference.php` is excluded.
 
-### Available Commands
+### Formatting
+
+`.php-cs-fixer.dist.php` applies the Symfony rule set, enables risky rules, enforces `declare(strict_types=1)`, uses short arrays, and removes unused imports.
+
+### Tests
+
+PHPUnit is configured by `phpunit.dist.xml` with:
+
+- bootstrap file `tests/bootstrap.php`
+- `APP_ENV=test`
+- `KERNEL_CLASS=CSL\Kernel`
+- source restrictions for `src/`
+- deprecation, notice, and warning failures enabled
+
+The test suite contains unit tests for entities, repositories, event subscribers, logger components, DTOs, handlers, formatters, and services, plus functional repository tests using `KernelTestCaseBase`.
+
+## Development Commands
+
 ```bash
-# Database operations
-composer db-migrate:next          # Run next migration
-composer db-migrate:generate      # Generate new migration
-
-# Code quality
-composer phpstan                  # Run static analysis
-composer cs-fix                   # Fix code style
-composer code-fix                 # Run both cs-fix and phpstan
-
-# Development server
-symfony serve                     # Start development server
+composer db-migrate:next
+composer db-migrate:generate
+composer phpstan
+composer cs-fix
+composer code-fix
+composer test
 ```
 
-### Environment Setup
-1. Clone repository
-2. Copy `.env.example` to `.env`
-3. Run `composer install`
-4. Execute `composer db-migrate:next`
-5. Start server with `symfony serve`
+Useful validation commands before merging:
+
+```bash
+composer validate --no-check-publish
+composer phpstan
+composer test
+vendor/bin/php-cs-fixer fix --dry-run --diff
+```
 
 ## Extension Points
 
-### Adding New Entities
-1. Create entity in `src/Entity/`
-2. Create corresponding repository in `src/Repository/`
-3. Generate migration with `composer db-migrate:generate`
-4. Run migration with `composer db-migrate:next`
+### Add an Endpoint
 
-### Adding New Controllers
-1. Extend `CslAbstractController`
-2. Define routes using PHP attributes
-3. Inject required services via constructor
-4. Return appropriate response types
+1. Create a controller under `src/Endpoints/<Area>/<UseCase>/Controller/`.
+2. Extend `CslAbstractController`.
+3. Add Symfony route attributes to controller methods.
+4. Add request/response transformers near the endpoint when endpoint-specific transformation is needed.
+5. Add unit or functional tests for behavior that is more than a thin pass-through.
 
-### Adding New Exceptions
-1. Extend `CslAbstractException`
-2. Set appropriate HTTP status code
-3. Define meaningful error message
-4. Use in controllers for consistent error handling
+### Add an Entity
 
-## Security Considerations
+1. Create the entity under `src/Entity/` with Doctrine attributes.
+2. Create a repository under `src/Repository/` extending `CslAbstractRepository`.
+3. Generate a migration with `composer db-migrate:generate`.
+4. Apply it with `composer db-migrate:next`.
+5. Add repository and entity tests where behavior is project-specific.
 
-- Input validation through Symfony's validation component
-- SQL injection prevention via Doctrine ORM
-- XSS protection through proper output escaping
-- CSRF protection for state-changing operations
-- Environment-based configuration for sensitive data
+### Add a Logger Handler
 
-## Performance Optimizations
+1. Create a handler builder in `src/Module/LoggerBundle/Handler/`.
+2. Implement `CslHandlerBuilderInterface`, usually by extending `CslAbstractHandlerBuilder`.
+3. Expose it as a service or alias that matches the handler name resolved by `LoggerConfigurationDTO`.
+4. Add handler configuration under the `handlers` parameter in each required environment.
+5. Cover handler creation in unit tests.
 
-- Doctrine query optimization
-- Redis caching integration
-- Production-specific cache configurations
-- Lazy loading for entity relationships
-- Proxy class generation for development
+### Add a Subscriber
 
-## Future Enhancements
+1. Create the subscriber under `src/Events/`.
+2. Extend `CslAbstractSubscriber` when logger and request helpers are needed.
+3. Implement `getSubscribedEvents()`.
+4. Keep priorities explicit when ordering matters against existing request, response, and exception subscribers.
+5. Add unit tests for main-request handling, skipped paths, and side effects on the request or response.
 
-- API documentation with OpenAPI/Swagger
-- Event-driven architecture with Symfony EventDispatcher
-- Command pattern for complex operations
-- CQRS implementation for read/write separation
-- Microservice communication patterns
+## Security and Operational Notes
+
+- Keep secrets in environment variables, not committed configuration.
+- Validate input with Symfony Validator and typed request DTOs where applicable.
+- Avoid logging sensitive values in request bodies, response bodies, and trace context.
+- Configure trusted proxies and trusted hosts in deploying applications when traffic passes through load balancers or reverse proxies.
+- Use Doctrine parameterization and repositories for database access.
+- Review logger handler configuration before enabling GELF in environments where Graylog is unavailable.
