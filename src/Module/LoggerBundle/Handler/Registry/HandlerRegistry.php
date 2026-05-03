@@ -27,7 +27,7 @@ class HandlerRegistry implements HandlerRegistryInterface
      */
     public function getHandler(string $handlerName): CslHandlerBuilderInterface
     {
-        if (!$this->hasHandler($handlerName)) {
+        if (!isset($this->handlers[$handlerName])) {
             // Try to get from container if not in registry
             if ($this->container->has($handlerName)) {
                 $handler = $this->container->get($handlerName);
@@ -45,11 +45,6 @@ class HandlerRegistry implements HandlerRegistryInterface
         }
 
         return $this->handlers[$handlerName];
-    }
-
-    public function hasHandler(string $handlerName): bool
-    {
-        return isset($this->handlers[$handlerName]);
     }
 
     public function registerHandler(string $handlerName, CslHandlerBuilderInterface $handler): void

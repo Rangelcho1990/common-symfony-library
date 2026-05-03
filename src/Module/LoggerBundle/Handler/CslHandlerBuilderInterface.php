@@ -11,5 +11,7 @@ interface CslHandlerBuilderInterface
 {
     public function setLoggerConfiguration(LoggerConfigurationDTO $loggerConfiguration): void;
 
+    public function getLoggerConfiguration(): LoggerConfigurationDTO;
+
     public function getHandler(): HandlerInterface;
 }

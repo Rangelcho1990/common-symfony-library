@@ -10,7 +10,5 @@ interface HandlerRegistryInterface
 {
     public function getHandler(string $handlerName): CslHandlerBuilderInterface;
 
-    public function hasHandler(string $handlerName): bool;
-
     public function registerHandler(string $handlerName, CslHandlerBuilderInterface $handler): void;
 }

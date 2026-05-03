@@ -21,17 +21,17 @@ final class CslGelfHandlerTcp extends CslAbstractHandlerBuilder
      */
     public function getHandler(): HandlerInterface
     {
-        if (null === $this->loggerConfiguration->getPort()) {
+        if (null === $this->getLoggerConfiguration()->getPort()) {
             throw new ParameterNotFoundException('Missing port for CslGelfHandlerTcp!');
         }
 
         $transporter = new TcpTransport(
-            $this->loggerConfiguration->getHost(),
-            $this->loggerConfiguration->getPort(),
+            $this->getLoggerConfiguration()->getHost(),
+            $this->getLoggerConfiguration()->getPort(),
         );
 
-        if (null !== $this->loggerConfiguration->getIgnoreConnectionErrors()
-            && $this->loggerConfiguration->getIgnoreConnectionErrors()
+        if (null !== $this->getLoggerConfiguration()->getIgnoreConnectionErrors()
+            && $this->getLoggerConfiguration()->getIgnoreConnectionErrors()
         ) {
             $transporter = new IgnoreErrorTransportWrapper($transporter);
         }
@@ -42,7 +42,7 @@ final class CslGelfHandlerTcp extends CslAbstractHandlerBuilder
         );
 
         $gelfHandler->setFormatter(new GelfHandlerFormatter(
-            $this->loggerConfiguration->getSource(),
+            $this->getLoggerConfiguration()->getSource(),
             null,
             ''
         ));
