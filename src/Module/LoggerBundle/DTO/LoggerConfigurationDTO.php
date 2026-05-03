@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CSL\DTO\Logger;
+namespace CSL\Module\LoggerBundle\DTO;
 
 class LoggerConfigurationDTO
 {

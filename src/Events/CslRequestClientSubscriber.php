@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CSL\Events;
 
-use CSL\DTO\Events\CslEventsSubscriberDTO;
+use CSL\Events\DTO\CslEventsSubscriberDTO;
 use CSL\Service\ClientCommunicator\ClientCommunicatorInterface;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CSL\Tests\Unit\Module\LoggerBundle\LoggerFormatters;
 
-use CSL\DTO\Logger\LoggerConfigurationDTO;
+use CSL\Module\LoggerBundle\DTO\LoggerConfigurationDTO;
 use CSL\Module\LoggerBundle\LoggerFormatters\CslLogFormatter;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Level;

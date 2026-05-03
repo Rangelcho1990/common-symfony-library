@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CSL\Tests\Unit\Events;
 
-use CSL\DTO\Events\CslEventsSubscriberDTO;
 use CSL\Events\CslErrorSubscriber;
+use CSL\Events\DTO\CslEventsSubscriberDTO;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;

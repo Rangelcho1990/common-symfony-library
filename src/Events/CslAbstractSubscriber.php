@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CSL\Events;
 
-use CSL\DTO\Events\CslEventsSubscriberDTO;
+use CSL\Events\DTO\CslEventsSubscriberDTO;
 use CSL\Module\LoggerBundle\CslLogger\CslLogger;
 use CSL\Module\Traits\RequestDataTrait;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

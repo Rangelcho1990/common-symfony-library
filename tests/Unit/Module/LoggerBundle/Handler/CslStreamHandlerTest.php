@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CSL\Tests\Unit\Module\LoggerBundle\Handler;
 
-use CSL\DTO\Logger\LoggerConfigurationDTO;
+use CSL\Module\LoggerBundle\DTO\LoggerConfigurationDTO;
 use CSL\Module\LoggerBundle\Handler\CslHandlerInterface;
 use CSL\Module\LoggerBundle\Handler\CslStreamHandler;
 use Monolog\Handler\HandlerInterface;

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CSL\Module\LoggerBundle;
 
-use CSL\DTO\Logger\LoggerConfigurationDTO;
 use CSL\Exceptions\NotImplementedException;
 use CSL\Module\ErrorHandler\AbstractErrorHandler;
+use CSL\Module\LoggerBundle\DTO\LoggerConfigurationDTO;
 use CSL\Module\LoggerBundle\Handler\Factory\HandlerFactoryInterface;
 use Monolog\Logger;
 use Psr\Container\ContainerExceptionInterface;
