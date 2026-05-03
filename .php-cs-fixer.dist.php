@@ -3,7 +3,8 @@
 $dirs = ['var', 'vendor'];
 $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__)
-    ->exclude($dirs);
+    ->exclude($dirs)
+    ->notPath('config/reference.php');
 
 return (new PhpCsFixer\Config())
     ->setRiskyAllowed(true)
