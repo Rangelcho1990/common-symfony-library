@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CSL\Tests\Unit\Module\LoggerBundle\Handler;
 
 use CSL\Module\LoggerBundle\DTO\LoggerConfigurationDTO;
-use CSL\Module\LoggerBundle\Handler\CslHandlerInterface;
+use CSL\Module\LoggerBundle\Handler\CslHandlerBuilderInterface;
 use CSL\Module\LoggerBundle\Handler\CslStreamHandler;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Level;
@@ -43,7 +43,7 @@ class CslStreamHandlerTest extends TestCase
 
     public function testValidateCslStreamHandlerHandlerInstance(): void
     {
-        $cslStreamHandler = $this->createStub(CslHandlerInterface::class);
+        $cslStreamHandler = $this->createStub(CslHandlerBuilderInterface::class);
         $cslStreamHandler->method('getHandler')->willReturn($this->createStub(HandlerInterface::class));
 
         $this->assertInstanceOf(HandlerInterface::class, $cslStreamHandler->getHandler());
