@@ -26,6 +26,10 @@ class CslResponseClientSubscriber extends CslAbstractSubscriber
 
     public function onKernelResponse(ResponseEvent $event): void
     {
+        if ($this->isDocsRequest($event->getRequest())) {
+            return;
+        }
+
         if (!$event->isMainRequest()) {
             return;
         }
@@ -45,14 +49,12 @@ class CslResponseClientSubscriber extends CslAbstractSubscriber
             $event->getRequest()->getClientIps(),
         );
 
+        $communicationTime = [];
         $clientId = $event->getRequest()->attributes->get(self::CLIENT_ID);
         if (is_string($clientId)) {
             $this->clientCommunicatorInterface->stopTimer($clientId);
+            $communicationTime = $this->clientCommunicatorInterface->getCommunicationTime($clientId);
         }
-
-        $other = [
-            'communicationTime' => is_string($clientId) ? $this->clientCommunicatorInterface->getCommunicationTime($clientId) : [],
-        ];
 
         $content = $event->getResponse()->getContent();
         $content = false === $content ? null : $content;
@@ -60,7 +62,7 @@ class CslResponseClientSubscriber extends CslAbstractSubscriber
         $cslLogTraceDataDTO = new CslLogTraceDataDTO();
         $cslLogTraceDataDTO->prepareLogTraceData(
             'Info',
-            $other,
+            ['communicationTime' => $communicationTime],
             $content,
             null,
             null,
@@ -68,7 +70,7 @@ class CslResponseClientSubscriber extends CslAbstractSubscriber
             null,
             $event->getResponse()->getStatusCode()
         );
-        unset($clientId, $other, $content);
+        unset($clientId, $content);
 
         $this->cslLogger->getInfoEvents()->logInfo(
             $cslLogRequestDataDTO,

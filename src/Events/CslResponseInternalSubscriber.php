@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * Transforms internal response payloads before returning to the client.
- * Keep this subscriber opt-in (route/flag guarded) to avoid rewriting error responses.
+ * Skips framework/docs routes so Symfony and Nelmio responses are not rewritten.
  */
 class CslResponseInternalSubscriber extends CslAbstractSubscriber
 {
@@ -22,6 +22,10 @@ class CslResponseInternalSubscriber extends CslAbstractSubscriber
 
         $request = $event->getRequest();
         $response = $event->getResponse();
+
+        if ($this->isDocsRequest($request)) {
+            return;
+        }
 
         if ($request->attributes->getBoolean(self::CSL_ERROR_HANDLED)) {
             return;

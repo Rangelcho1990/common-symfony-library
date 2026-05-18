@@ -64,6 +64,21 @@ final class CslResponseInternalSubscriberTest extends TestCase
         self::assertNotNull($response->headers->get('Content-Type'));
     }
 
+    public function testMainRequestDoesNotTransformDocsRoute(): void
+    {
+        $subscriber = $this->createSubscriber();
+        $kernel = $this->createStub(HttpKernelInterface::class);
+        $request = Request::create('/api/doc');
+        $request->attributes->set('_route', 'app.swagger_ui');
+        $response = new Response('<html>docs</html>', 200, ['Content-Type' => 'text/html']);
+
+        $event = new ResponseEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, $response);
+        $subscriber->onKernelResponse($event);
+
+        self::assertSame('<html>docs</html>', $response->getContent());
+        self::assertSame('text/html', $response->headers->get('Content-Type'));
+    }
+
     public function testMainRequestDoesNotTransformWhenErrorHandledFlagIsSet(): void
     {
         $subscriber = $this->createSubscriber();
@@ -90,6 +105,36 @@ final class CslResponseInternalSubscriberTest extends TestCase
 
         self::assertSame('original', $response->getContent());
         self::assertSame(500, $response->getStatusCode());
+    }
+
+    public function testMainRequestDoesNotTransformProfilerToolbarStylesheet(): void
+    {
+        $subscriber = $this->createSubscriber();
+        $kernel = $this->createStub(HttpKernelInterface::class);
+        $request = Request::create('/_wdt/styles');
+        $request->attributes->set('_route', '_wdt_stylesheet');
+        $response = new Response('.sf-toolbar {}', 200, ['Content-Type' => 'text/css']);
+
+        $event = new ResponseEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, $response);
+        $subscriber->onKernelResponse($event);
+
+        self::assertSame('.sf-toolbar {}', $response->getContent());
+        self::assertSame('text/css', $response->headers->get('Content-Type'));
+    }
+
+    public function testMainRequestDoesNotTransformProfilerToolbarAjaxResponse(): void
+    {
+        $subscriber = $this->createSubscriber();
+        $kernel = $this->createStub(HttpKernelInterface::class);
+        $request = Request::create('/_wdt/abc123');
+        $request->attributes->set('_route', '_wdt');
+        $response = new Response('<div class="sf-toolbar">toolbar</div>', 200, ['Content-Type' => 'text/html']);
+
+        $event = new ResponseEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, $response);
+        $subscriber->onKernelResponse($event);
+
+        self::assertSame('<div class="sf-toolbar">toolbar</div>', $response->getContent());
+        self::assertSame('text/html', $response->headers->get('Content-Type'));
     }
 
     private function createSubscriber(): CslResponseInternalSubscriber
