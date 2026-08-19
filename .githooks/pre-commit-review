@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+PROMPT_FILE="${ROOT}/.githooks/pre-commit-review-prompt.md"
+NOTES_FILE="Release Notes.md"
+
+if [[ "${GIT_PRE_COMMIT_SKIP_AGENT:-}" == "1" ]]; then
+    echo "pre-commit: skipping Cursor Agent review (GIT_PRE_COMMIT_SKIP_AGENT=1)."
+    exit 0
+fi
+
+staged_files="$(git diff --cached --name-only -- . ":!${NOTES_FILE}" || true)"
+if [[ -z "$staged_files" ]]; then
+    echo "pre-commit: no staged files besides Release Notes; skipping Cursor Agent review."
+    exit 0
+fi
+
+if [[ ! -f "$PROMPT_FILE" ]]; then
+    echo "pre-commit: missing agent prompt at ${PROMPT_FILE}." >&2
+    exit 1
+fi
+
+if command -v agent >/dev/null 2>&1; then
+    agent_bin="$(command -v agent)"
+elif command -v cursor-agent >/dev/null 2>&1; then
+    agent_bin="$(command -v cursor-agent)"
+else
+    echo "pre-commit: Cursor Agent CLI not found (agent or cursor-agent)." >&2
+    echo "pre-commit: install/login the CLI, or skip with GIT_PRE_COMMIT_SKIP_AGENT=1." >&2
+    exit 1
+fi
+
+echo "pre-commit: running Cursor Agent review..."
+
+output_file="$(mktemp)"
+trap 'rm -f "$output_file"' EXIT
+
+prompt="$(cat "$PROMPT_FILE")"
+set +e
+if command -v timeout >/dev/null 2>&1; then
+    timeout --foreground 600 "$agent_bin" -p --force --trust --sandbox disabled --workspace "$ROOT" "$prompt" | tee "$output_file"
+    agent_status="${PIPESTATUS[0]}"
+else
+    "$agent_bin" -p --force --trust --sandbox disabled --workspace "$ROOT" "$prompt" | tee "$output_file"
+    agent_status="${PIPESTATUS[0]}"
+fi
+set -e
+
+if [[ "$agent_status" -eq 124 ]]; then
+    echo "pre-commit: Cursor Agent review timed out after 10 minutes. Commit blocked." >&2
+    exit 1
+fi
+
+if [[ "$agent_status" -ne 0 ]]; then
+    echo "pre-commit: Cursor Agent review failed to run (exit ${agent_status}). Commit blocked." >&2
+    echo "pre-commit: try \`agent login\`, or skip with GIT_PRE_COMMIT_SKIP_AGENT=1." >&2
+    exit 1
+fi
+
+verdict="$(tr -d '\r' <"$output_file" | sed '/^[[:space:]]*$/d' | tail -n 1)"
+
+if [[ "$verdict" == "PRECOMMIT_REVIEW: PASS" ]]; then
+    echo "pre-commit: Cursor Agent review passed."
+    exit 0
+fi
+
+if [[ "$verdict" == "PRECOMMIT_REVIEW: FAIL" ]]; then
+    echo "pre-commit: Cursor Agent review reported blocking findings (architecture or P0/P1). Commit blocked." >&2
+    exit 1
+fi
+
+echo "pre-commit: Cursor Agent review did not print a PRECOMMIT_REVIEW verdict. Commit blocked." >&2
+exit 1

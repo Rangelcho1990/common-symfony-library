@@ -34,6 +34,8 @@ if ! vendor/bin/phpstan analyse; then
     exit 1
 fi
 
+bash "${ROOT}/.githooks/pre-commit-review"
+
 if [[ "${GIT_PRE_COMMIT_SKIP_RELEASE_NOTES:-}" == "1" ]]; then
     echo "pre-commit: skipping Release Notes update (GIT_PRE_COMMIT_SKIP_RELEASE_NOTES=1)."
     exit 0
