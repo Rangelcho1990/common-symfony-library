@@ -270,6 +270,7 @@ Composer defines the following project scripts:
 | `composer phpstan` | `vendor/bin/phpstan analyse` |
 | `composer cs-fix` | `vendor/bin/php-cs-fixer fix` |
 | `composer code-fix` | Runs `cs-fix` and `phpstan` |
+| `composer hooks:install` | Installs the pre-commit hook (PHPStan, CS Fixer, Release Notes update) |
 | `composer test` | `vendor/bin/phpunit --testdox` |
 
 Composer also runs Symfony Flex auto-scripts after install and update:
@@ -287,6 +288,18 @@ composer phpstan
 composer test
 vendor/bin/php-cs-fixer fix --dry-run --diff
 ```
+
+Install the local Git pre-commit hook once per clone:
+
+```bash
+composer hooks:install
+```
+
+The hook runs PHP CS Fixer and PHPStan, blocks the commit when either fails, and prepends staged file changes under `Unreleased` in [Release Notes.md](Release%20Notes.md).
+
+## Release Notes
+
+See [Release Notes.md](Release%20Notes.md) for request-time tracking in the logger, the API docs URL fix, and related subscriber updates.
 
 ## Security Notes
 

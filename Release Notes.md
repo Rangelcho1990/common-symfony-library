@@ -1,5 +1,53 @@
 # Release Notes
 
+## Unreleased
+
+## Change 3 — Request time tracking in the logger
+
+This change adds request communication timing to structured logs and keeps a single request UUID for the whole request lifecycle.
+
+### What changed
+
+- `CslRequestClientSubscriber` starts a `ClientCommunicator` timer on main requests and stores `requestUid` (UUIDv7) plus a communication `clientId`.
+- `CslResponseClientSubscriber` stops the timer and logs `communicationTime` (`startTime`, `endTime`, `durationMs`) with the info event.
+- `CslErrorSubscriber` reuses the same request UUID, marks only main requests with `_csl_error_handled`, and returns a JSON error response.
+- Request attribute keys are shared constants on `CslAbstractSubscriber`.
+
+### Why
+
+Logs can be correlated by `requestUid`, and each request records how long client communication took.
+
+### Tests
+
+Covered in:
+
+- `tests/Unit/Events/CslErrorSubscriberTest.php`
+- `tests/Unit/Events/CslRequestClientSubscriberTest.php`
+- `tests/Unit/Events/CslResponseClientSubscriberTest.php`
+- `tests/Unit/Service/ClientCommunicator/ClientCommunicatorTest.php`
+
+## Change 9 — API docs URL not working
+
+Kernel subscribers were rewriting and logging Nelmio Swagger UI, Swagger JSON, and Symfony profiler/toolbar responses. That broke `/api/doc` and related framework pages.
+
+### What changed
+
+- `CslAbstractSubscriber` now skips docs and profiler traffic through `isDocsRequest()`, covering Swagger UI/JSON/YAML routes, `nelmio_api_doc.*`, `_wdt`, and `_profiler*`.
+- `CslRequestClientSubscriber`, `CslResponseClientSubscriber`, `CslResponseInternalSubscriber`, and `CslErrorSubscriber` return early for those routes so docs HTML is not transformed into application JSON and is not treated as client communication.
+- `ExampleController` uses `#[Route]` attributes plus OpenAPI `#[OA\Response]` / `#[OA\Tag]` metadata so Nelmio can document `GET /example`.
+- Web profiler collection is enabled in the `dev` and `test` profiler config.
+
+### Why
+
+`/api/doc` and the Symfony toolbar can render without being overwritten by response transformers or exception handling.
+
+### Tests
+
+Covered in:
+
+- `tests/Unit/Events/CslRequestClientSubscriberTest.php`
+- `tests/Unit/Events/CslResponseInternalSubscriberTest.php`
+
 ## Summary
 
 This branch expands PHPUnit coverage around the current Symfony library behavior, especially the logger bundle, event subscribers, repositories, entities, and client communication timing. It also includes small implementation refinements needed to make the tested behavior explicit and reliable.

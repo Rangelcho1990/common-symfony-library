@@ -91,6 +91,7 @@
             "@cs-fix",
             "@phpstan"
         ],
+        "hooks:install": "bash bin/install-git-hooks",
         "test": "vendor/bin/phpunit --testdox"
     },
     "conflict": {

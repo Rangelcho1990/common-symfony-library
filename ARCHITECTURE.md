@@ -245,6 +245,8 @@ Redis integration is provided by `uzunov-labs/redis-service` and configured thro
 
 `.php-cs-fixer.dist.php` applies the Symfony rule set, enables risky rules, enforces `declare(strict_types=1)`, uses short arrays, and removes unused imports.
 
+The versioned Git pre-commit hook in `.githooks/pre-commit` runs PHP CS Fixer, then PHPStan, and blocks the commit when either reports issues. After both pass, it prepends the staged file list under `Unreleased` in `Release Notes.md`. Install it with `composer hooks:install`.
+
 ### Tests
 
 PHPUnit is configured by `phpunit.dist.xml` with:
@@ -265,6 +267,7 @@ composer db-migrate:generate
 composer phpstan
 composer cs-fix
 composer code-fix
+composer hooks:install
 composer test
 ```
 

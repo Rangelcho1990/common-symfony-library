@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+HOOKS_DIR="${ROOT}/.git/hooks"
+SOURCE="${ROOT}/.githooks/pre-commit"
+TARGET="${HOOKS_DIR}/pre-commit"
+
+if [[ ! -d "$HOOKS_DIR" ]]; then
+    echo "install-git-hooks: ${HOOKS_DIR} does not exist. Is this a git repository?" >&2
+    exit 1
+fi
+
+if [[ ! -f "$SOURCE" ]]; then
+    echo "install-git-hooks: missing ${SOURCE}" >&2
+    exit 1
+fi
+
+install -m 0755 "$SOURCE" "$TARGET"
+echo "Installed pre-commit hook to ${TARGET}"
