@@ -16,6 +16,10 @@ class CslErrorSubscriber extends CslAbstractSubscriber
 {
     public function onKernelException(ExceptionEvent $event): void
     {
+        if ($this->isDocsRequest($event->getRequest())) {
+            return;
+        }
+
         if ($event->isMainRequest()) {
             $event->getRequest()->attributes->set(self::CSL_ERROR_HANDLED, true);
         }
@@ -48,6 +52,8 @@ class CslErrorSubscriber extends CslAbstractSubscriber
             'message' => $event->getThrowable()->getMessage(),
             'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
         ]);
+
+        //TODO: match the error from Example Controller
 
         $event->setResponse(
             new Response(

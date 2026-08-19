@@ -24,6 +24,10 @@ class CslRequestClientSubscriber extends CslAbstractSubscriber
 
     public function onKernelRequest(RequestEvent $event): void
     {
+        if ($this->isDocsRequest($event->getRequest())) {
+            return;
+        }
+
         if (!$event->isMainRequest()) {
             return;
         }

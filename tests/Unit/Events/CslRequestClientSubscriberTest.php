@@ -91,6 +91,23 @@ final class CslRequestClientSubscriberTest extends TestCase
         self::assertSame('ExistingClientId', $request->attributes->get('clientId'));
     }
 
+    public function testDocsRouteDoesNotStartTimer(): void
+    {
+        $communicator = $this->createMock(ClientCommunicatorInterface::class);
+        $communicator->expects(self::never())->method('startTimer');
+
+        $subscriber = $this->createSubscriber($communicator);
+        $kernel = $this->createStub(HttpKernelInterface::class);
+        $request = Request::create('/api/doc');
+        $request->attributes->set('_route', 'app.swagger_ui');
+
+        $event = new RequestEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST);
+        $subscriber->onKernelRequest($event);
+
+        self::assertFalse($request->attributes->has('requestUid'));
+        self::assertFalse($request->attributes->has('clientId'));
+    }
+
     private function createSubscriber(ClientCommunicatorInterface $communicator): CslRequestClientSubscriber
     {
         $psrLogger = $this->createStub(LoggerInterface::class);
