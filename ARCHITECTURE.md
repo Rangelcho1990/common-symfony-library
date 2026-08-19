@@ -245,7 +245,9 @@ Redis integration is provided by `uzunov-labs/redis-service` and configured thro
 
 `.php-cs-fixer.dist.php` applies the Symfony rule set, enables risky rules, enforces `declare(strict_types=1)`, uses short arrays, and removes unused imports.
 
-The versioned Git pre-commit hook in `.githooks/pre-commit` runs PHP CS Fixer, then PHPStan, and blocks the commit when either reports issues. After both pass, it prepends the staged file list under `Unreleased` in `Release Notes.md`. Install it with `composer hooks:install`.
+The versioned Git pre-commit hook in `.githooks/pre-commit` runs PHP CS Fixer, then PHPStan, then a headless Cursor Agent review, and blocks the commit when any of those steps reports issues. After they pass, it prepends the staged file list under `Unreleased` in `Release Notes.md`. Install it with `composer hooks:install`.
+
+The agent review uses the Cursor Agent CLI (`agent` or `cursor-agent`) with the prompt in `.githooks/pre-commit-review-prompt.md`. It inspects the staged diff like a pull request review, checks that `ARCHITECTURE.md` still matches the change, writes a numbered review file under `.docs/`, and fails the commit on inaccurate architecture docs or P0/P1 findings. Skip only the agent step with `GIT_PRE_COMMIT_SKIP_AGENT=1`.
 
 ### Tests
 
