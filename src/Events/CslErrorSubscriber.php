@@ -53,7 +53,7 @@ class CslErrorSubscriber extends CslAbstractSubscriber
             'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
         ]);
 
-        //TODO: match the error from Example Controller
+        // TODO: match the error from Example Controller
 
         $event->setResponse(
             new Response(
