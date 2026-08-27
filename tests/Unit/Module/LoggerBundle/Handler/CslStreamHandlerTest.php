@@ -50,6 +50,27 @@ class CslStreamHandlerTest extends TestCase
         $this->assertInstanceOf(HandlerInterface::class, $cslStreamHandler->getHandler());
     }
 
+    public function testGetHandlerPreservesInvalidLogLevelException(): void
+    {
+        $loggerConfigurationDTO = new LoggerConfigurationDTO();
+        $loggerConfigurationDTO->prepareConfigurationData('StreamHandler', [
+            'level' => 350,
+            'format' => 'test',
+            'host' => 'php://memory',
+            'port' => null,
+            'source' => null,
+            'ignoreConnectionErrors' => null,
+        ]);
+
+        $cslStreamHandler = new CslStreamHandler();
+        $cslStreamHandler->setLoggerConfiguration($loggerConfigurationDTO);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid Monolog log level "350"');
+
+        $cslStreamHandler->getHandler();
+    }
+
     public function testValidateCslStreamHandlerHandlerBuild(): void
     {
         $cslStreamHandler = new CslStreamHandler();

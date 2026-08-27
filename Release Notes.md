@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+## Change 17 — Preserve invalid log-level exceptions in CslStreamHandler
+
+`CslStreamHandler` now preserves specific configuration exceptions instead of converting every handler-construction failure into a generic `RuntimeException`.
+
+### What changed
+
+- Removed the broad `catch (\Exception)` wrapper from `CslStreamHandler::getHandler()`.
+- Invalid Monolog levels now propagate as `InvalidArgumentException`, matching `CslGelfHandlerTcp` behavior.
+- Removed the unused `ParameterNotFoundException` import and the incorrect `@throws ParameterNotFoundException` annotation.
+- Added regression coverage through the public `CslStreamHandler::getHandler()` path using invalid level `350`.
+
+### Why
+
+Callers can distinguish invalid logger configuration from other handler-construction failures, and the stream and GELF handlers now expose consistent invalid-level behavior.
+
+### Tests
+
+Covered in:
+
+- `tests/Unit/Module/LoggerBundle/Handler/CslStreamHandlerTest.php`
+
 ## Change 3 — Request time tracking in the logger
 
 This change adds request communication timing to structured logs and keeps a single request UUID for the whole request lifecycle.
@@ -58,6 +79,7 @@ This branch expands PHPUnit coverage around the current Symfony library behavior
 - Refined logger handler naming by replacing `CslHandlerInterface` with `CslHandlerBuilderInterface`, making the interface purpose clearer.
 - Moved `CslEventsSubscriberDTO` into `CSL\Events\DTO` and `LoggerConfigurationDTO` into `CSL\Module\LoggerBundle\DTO` to align DTOs with their owning modules.
 - Updated logger handler builders to expose logger configuration through `getLoggerConfiguration()` and validate Monolog log levels with `Level::tryFrom()`.
+- Updated `CslStreamHandler` to preserve invalid log-level exceptions instead of wrapping them in a generic runtime exception.
 - Updated `CslLogFormatter` to fall back to the record message when no context message is provided, and to use the numeric Monolog level value as the default code.
 - Improved GELF TCP handler behavior by validating missing ports, using the shared logger configuration accessor, and preserving optional connection error handling.
 - Updated PHP CS Fixer configuration to exclude `config/reference.php`.
@@ -95,6 +117,7 @@ This branch expands PHPUnit coverage around the current Symfony library behavior
 - Main request event handling is now covered for request UID reuse, client ID reuse, response logging, error response creation, and response transformation bypass rules.
 - Client communication timing is covered for unknown clients, stop-without-start behavior, start time storage, stop time storage, duration calculation, and independent timers per client ID.
 - Handler registry tests now verify cached registered handlers, lazy container lookup, and type validation when container services do not implement `CslHandlerBuilderInterface`.
+- Stream handler tests now verify that invalid Monolog levels remain `InvalidArgumentException` instances through the public handler-construction path.
 - Formatter tests now verify GELF message construction, truncation behavior, empty-message fallback when JSON encoding fails, and concrete `CslLogFormatter` instantiation.
 
 ## Compatibility Notes
@@ -104,6 +127,7 @@ This branch expands PHPUnit coverage around the current Symfony library behavior
   - `CSL\DTO\Logger\LoggerConfigurationDTO` -> `CSL\Module\LoggerBundle\DTO\LoggerConfigurationDTO`
 - The handler contract changed from `CslHandlerInterface` to `CslHandlerBuilderInterface`.
 - `HandlerRegistryInterface` no longer exposes `hasHandler()`.
+- `CslStreamHandler::getHandler()` now preserves `InvalidArgumentException` for invalid log levels; callers that previously caught the generic wrapper should handle the specific exception.
 
 ## Changed Files Overview
 
