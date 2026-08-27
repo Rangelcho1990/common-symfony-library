@@ -1,11 +1,22 @@
 ---
 alwaysApply: false
 ---
-1. Make a code review and save the response in the 1.CodeReviewImprove MD file, if the file exist increes the number with one - 1.CodeReviewImprove ==> 2.CodeReviewImprove, etc. Separete two section Code Review and Improve. File need to be save in the .docs directory, if need create the directory.
-2. Add the following section in the following order:
-    - section Code Review.
-    - section Code Improve.
-    - section Architectural Improvements.
-    - section Testing Recommendations.
-    - section Summary.
-    - section that compares the progress with the previous versions.
+1. Review the changes made in the current branch, including relevant staged and unstaged changes. Save the review in `.docs/1.CodeReviewImprove.md`. If a numbered review already exists, increment the highest number, for example `1.CodeReviewImprove.md` becomes `2.CodeReviewImprove.md`. Create `.docs` when it does not exist.
+2. Add the following sections to the review in this order:
+    - `Code Review`
+    - `Code Improve`
+    - `Architectural Improvements`
+    - `Testing Recommendations`
+    - `Summary`
+    - `Comparison with Previous Versions`
+    - `Release Notes`
+3. Compare the current branch with its base/default branch when that branch is available locally. Do not overwrite or discard unrelated working-tree changes.
+4. Review `Release Notes.md` after completing the code review. When the current branch contains release-note-worthy behavior, compatibility, API, configuration, or testing changes, update the `Unreleased` section with a concise description of:
+    - what changed;
+    - why it changed;
+    - compatibility impact, when applicable;
+    - the tests that cover it.
+5. Do not rewrite historical release entries or update generated file/line counts unless the current task specifically requires it.
+6. In the review's `Release Notes` section, always record one of the following outcomes:
+    - `Updated`, with a short summary of the release-note entry; or
+    - `Not required`, with a short explanation of why the branch has no release-note-worthy changes.
