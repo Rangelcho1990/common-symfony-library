@@ -8,6 +8,7 @@ use CSL\Events\DTO\CslEventsSubscriberDTO;
 use CSL\Service\ClientCommunicator\ClientCommunicatorInterface;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\HttpKernel\Event\FinishRequestEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -49,6 +50,18 @@ class CslRequestClientSubscriber extends CslAbstractSubscriber
         $this->clientCommunicatorInterface->startTimer($clientId);
     }
 
+    public function onKernelFinishRequest(FinishRequestEvent $event): void
+    {
+        if (!$event->isMainRequest()) {
+            return;
+        }
+
+        $clientId = $event->getRequest()->attributes->get(self::CLIENT_ID);
+        if (is_string($clientId)) {
+            $this->clientCommunicatorInterface->clearTimer($clientId);
+        }
+    }
+
     /**
      * @codeCoverageIgnore
      */
@@ -56,6 +69,7 @@ class CslRequestClientSubscriber extends CslAbstractSubscriber
     {
         return [
             KernelEvents::REQUEST => ['onKernelRequest', 300],
+            KernelEvents::FINISH_REQUEST => ['onKernelFinishRequest', -100],
         ];
     }
 }

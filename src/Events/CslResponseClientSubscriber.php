@@ -52,8 +52,7 @@ class CslResponseClientSubscriber extends CslAbstractSubscriber
         $communicationTime = [];
         $clientId = $event->getRequest()->attributes->get(self::CLIENT_ID);
         if (is_string($clientId)) {
-            $this->clientCommunicatorInterface->stopTimer($clientId);
-            $communicationTime = $this->clientCommunicatorInterface->getCommunicationTime($clientId);
+            $communicationTime = $this->clientCommunicatorInterface->stopAndTakeCommunicationTime($clientId);
         }
 
         $content = $event->getResponse()->getContent();

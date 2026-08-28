@@ -66,7 +66,7 @@ class CslLogFormatterTest extends TestCase
         $this->assertArrayHasKey('resource', $response);
         $this->assertArrayHasKey('method', $response);
         $this->assertArrayHasKey('ip', $response);
-        $this->assertArrayHasKey('other', $response);
+        $this->assertArrayHasKey('communicationTime', $response);
         $this->assertArrayHasKey('responseBody', $response);
         $this->assertArrayHasKey('message', $response);
         $this->assertArrayHasKey('file', $response);

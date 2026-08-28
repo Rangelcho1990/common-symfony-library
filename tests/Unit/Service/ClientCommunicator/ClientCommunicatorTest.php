@@ -21,7 +21,7 @@ final class ClientCommunicatorTest extends TestCase
     {
         $clientCommunicator = new ClientCommunicator();
 
-        self::assertSame([], $clientCommunicator->getCommunicationTime('unknown-client'));
+        self::assertSame([], $clientCommunicator->stopAndTakeCommunicationTime('unknown-client'));
     }
 
     public function testStopTimerWithoutStartDoesNotCreateCommunicationTime(): void
@@ -30,10 +30,10 @@ final class ClientCommunicatorTest extends TestCase
 
         $clientCommunicator->stopTimer('client-without-start');
 
-        self::assertSame([], $clientCommunicator->getCommunicationTime('client-without-start'));
+        self::assertSame([], $clientCommunicator->stopAndTakeCommunicationTime('client-without-start'));
     }
 
-    public function testStartTimerStoresStartTimeOnly(): void
+    public function testStartTimerStoresStartTime(): void
     {
         $clientCommunicator = new ClientCommunicator();
         $beforeStart = microtime(true);
@@ -41,14 +41,12 @@ final class ClientCommunicatorTest extends TestCase
         $clientCommunicator->startTimer('client-a');
 
         $afterStart = microtime(true);
-        $communicationTime = $clientCommunicator->getCommunicationTime('client-a');
+        $communicationTime = $clientCommunicator->stopAndTakeCommunicationTime('client-a');
 
         if (!isset($communicationTime['startTime'])) {
             self::fail('Expected start time to be stored.');
         }
 
-        self::assertArrayNotHasKey('endTime', $communicationTime);
-        self::assertArrayNotHasKey('durationMs', $communicationTime);
         self::assertGreaterThanOrEqual($beforeStart, $communicationTime['startTime']);
         self::assertLessThanOrEqual($afterStart, $communicationTime['startTime']);
     }
@@ -60,8 +58,10 @@ final class ClientCommunicatorTest extends TestCase
         $clientCommunicator->startTimer('client-a');
         usleep(1000);
         $clientCommunicator->stopTimer('client-a');
+        $afterStop = microtime(true);
+        usleep(1000);
 
-        $communicationTime = $clientCommunicator->getCommunicationTime('client-a');
+        $communicationTime = $clientCommunicator->stopAndTakeCommunicationTime('client-a');
 
         if (!isset($communicationTime['startTime'])) {
             self::fail('Expected start time to be stored.');
@@ -76,27 +76,51 @@ final class ClientCommunicatorTest extends TestCase
         }
 
         self::assertGreaterThanOrEqual($communicationTime['startTime'], $communicationTime['endTime']);
+        self::assertLessThanOrEqual($afterStop, $communicationTime['endTime']);
         self::assertSame(
             (int) round(($communicationTime['endTime'] - $communicationTime['startTime']) * 1000),
             $communicationTime['durationMs']
         );
     }
 
-    public function testStoresTimersPerClientId(): void
+    public function testStopAndTakeCommunicationTimeReturnsCompletedTimerAndRemovesIt(): void
+    {
+        $clientCommunicator = new ClientCommunicator();
+
+        $clientCommunicator->startTimer('client-a');
+        usleep(1000);
+
+        $communicationTime = $clientCommunicator->stopAndTakeCommunicationTime('client-a');
+
+        self::assertArrayHasKey('startTime', $communicationTime);
+        self::assertArrayHasKey('endTime', $communicationTime);
+        self::assertArrayHasKey('durationMs', $communicationTime);
+        self::assertSame([], $clientCommunicator->stopAndTakeCommunicationTime('client-a'));
+    }
+
+    public function testStopAndTakeCommunicationTimePreservesOtherClientTimers(): void
     {
         $clientCommunicator = new ClientCommunicator();
 
         $clientCommunicator->startTimer('client-a');
         $clientCommunicator->startTimer('client-b');
-        $clientCommunicator->stopTimer('client-a');
 
-        $firstClientTime = $clientCommunicator->getCommunicationTime('client-a');
-        $secondClientTime = $clientCommunicator->getCommunicationTime('client-b');
+        $firstClientTime = $clientCommunicator->stopAndTakeCommunicationTime('client-a');
+        $secondClientTime = $clientCommunicator->stopAndTakeCommunicationTime('client-b');
 
-        self::assertArrayHasKey('endTime', $firstClientTime);
-        self::assertArrayHasKey('durationMs', $firstClientTime);
+        self::assertArrayHasKey('startTime', $firstClientTime);
         self::assertArrayHasKey('startTime', $secondClientTime);
-        self::assertArrayNotHasKey('endTime', $secondClientTime);
-        self::assertArrayNotHasKey('durationMs', $secondClientTime);
+        self::assertSame([], $clientCommunicator->stopAndTakeCommunicationTime('client-a'));
+        self::assertSame([], $clientCommunicator->stopAndTakeCommunicationTime('client-b'));
+    }
+
+    public function testClearTimerRemovesStartedTimer(): void
+    {
+        $clientCommunicator = new ClientCommunicator();
+        $clientCommunicator->startTimer('client-a');
+
+        $clientCommunicator->clearTimer('client-a');
+
+        self::assertSame([], $clientCommunicator->stopAndTakeCommunicationTime('client-a'));
     }
 }

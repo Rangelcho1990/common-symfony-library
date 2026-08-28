@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+## Change 26 — Release communication timers after request logging
+
+Completed communication timers are now removed from the shared `ClientCommunicator` service so long-running workers do not retain request timing data indefinitely.
+
+### What changed
+
+- Added `stopAndTakeCommunicationTime()` to atomically finish, return, and remove a client timer.
+- Added `clearTimer()` for lifecycle cleanup when no response timing is consumed.
+- Removed the obsolete non-consuming `getCommunicationTime()` API.
+- `CslResponseClientSubscriber` now consumes completed timers through the atomic operation.
+- `CslRequestClientSubscriber` clears any remaining main-request timer on `kernel.finish_request`, covering exceptions and skipped response logging.
+- Timer cleanup remains isolated by client ID, including when subrequests finish.
+
+### Tests
+
+Covered in:
+
+- `tests/Unit/Events/CslRequestClientSubscriberTest.php`
+- `tests/Unit/Events/CslResponseClientSubscriberTest.php`
+- `tests/Unit/Service/ClientCommunicator/ClientCommunicatorTest.php`
+
 ## Change 17 — Preserve invalid log-level exceptions in CslStreamHandler
 
 `CslStreamHandler` now preserves specific configuration exceptions instead of converting every handler-construction failure into a generic `RuntimeException`.

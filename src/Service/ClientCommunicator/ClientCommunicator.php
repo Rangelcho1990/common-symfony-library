@@ -28,17 +28,25 @@ class ClientCommunicator implements ClientCommunicatorInterface
     /**
      * @return array{startTime?: float, endTime?: float, durationMs?: int}
      */
-    public function getCommunicationTime(string $clientId): array
+    public function stopAndTakeCommunicationTime(string $clientId): array
     {
-        if (!isset($this->timers[$clientId])) {
+        if (!isset($this->timers[$clientId]['startTime'])) {
+            $this->clearTimer($clientId);
+
             return [];
         }
 
         $timer = $this->timers[$clientId];
-        if (isset($timer['startTime'], $timer['endTime'])) {
-            $timer['durationMs'] = (int) round(($timer['endTime'] - $timer['startTime']) * 1000);
-        }
+        $timer['endTime'] ??= microtime(true);
+        $timer['durationMs'] = (int) round(($timer['endTime'] - $timer['startTime']) * 1000);
+
+        $this->clearTimer($clientId);
 
         return $timer;
+    }
+
+    public function clearTimer(string $clientId): void
+    {
+        unset($this->timers[$clientId]);
     }
 }

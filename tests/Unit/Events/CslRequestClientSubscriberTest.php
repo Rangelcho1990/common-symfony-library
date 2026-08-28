@@ -6,11 +6,13 @@ namespace CSL\Tests\Unit\Events;
 
 use CSL\Events\CslRequestClientSubscriber;
 use CSL\Events\DTO\CslEventsSubscriberDTO;
+use CSL\Service\ClientCommunicator\ClientCommunicator;
 use CSL\Service\ClientCommunicator\ClientCommunicatorInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Event\FinishRequestEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
@@ -106,6 +108,55 @@ final class CslRequestClientSubscriberTest extends TestCase
 
         self::assertFalse($request->attributes->has('requestUid'));
         self::assertFalse($request->attributes->has('clientId'));
+    }
+
+    public function testFinishRequestClearsTimerForMainRequest(): void
+    {
+        $communicator = $this->createMock(ClientCommunicatorInterface::class);
+        $communicator->expects(self::once())->method('clearTimer')->with('Communication_x');
+
+        $subscriber = $this->createSubscriber($communicator);
+        $kernel = $this->createStub(HttpKernelInterface::class);
+        $request = new Request();
+        $request->attributes->set('clientId', 'Communication_x');
+
+        $event = new FinishRequestEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST);
+        $subscriber->onKernelFinishRequest($event);
+    }
+
+    public function testFinishSubRequestDoesNotClearMainRequestTimer(): void
+    {
+        $communicator = $this->createMock(ClientCommunicatorInterface::class);
+        $communicator->expects(self::never())->method('clearTimer');
+
+        $subscriber = $this->createSubscriber($communicator);
+        $kernel = $this->createStub(HttpKernelInterface::class);
+        $request = new Request();
+        $request->attributes->set('clientId', 'Communication_x');
+
+        $event = new FinishRequestEvent($kernel, $request, HttpKernelInterface::SUB_REQUEST);
+        $subscriber->onKernelFinishRequest($event);
+    }
+
+    public function testExceptionalRequestLeavesNoRetainedTimerAfterFinishRequest(): void
+    {
+        $communicator = new ClientCommunicator();
+        $subscriber = $this->createSubscriber($communicator);
+        $kernel = $this->createStub(HttpKernelInterface::class);
+        $request = new Request();
+
+        $subscriber->onKernelRequest(
+            new RequestEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST)
+        );
+
+        $clientId = $request->attributes->get('clientId');
+        self::assertIsString($clientId);
+
+        $subscriber->onKernelFinishRequest(
+            new FinishRequestEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST)
+        );
+
+        self::assertSame([], $communicator->stopAndTakeCommunicationTime($clientId));
     }
 
     private function createSubscriber(ClientCommunicatorInterface $communicator): CslRequestClientSubscriber
