@@ -13,5 +13,7 @@ interface ClientCommunicatorInterface
     /**
      * @return array{startTime?: float, endTime?: float, durationMs?: int}
      */
-    public function getCommunicationTime(string $clientId): array;
+    public function stopAndTakeCommunicationTime(string $clientId): array;
+
+    public function clearTimer(string $clientId): void;
 }

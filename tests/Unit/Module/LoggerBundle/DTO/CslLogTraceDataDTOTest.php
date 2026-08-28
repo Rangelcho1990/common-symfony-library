@@ -15,7 +15,11 @@ class CslLogTraceDataDTOTest extends TestCase
 
         $dto->prepareLogTraceData(
             messageTemplate: 'template',
-            other: ['context' => 'value'],
+            communicationTime: [
+                'startTime' => 1.0,
+                'endTime' => 1.25,
+                'durationMs' => 250,
+            ],
             responseBody: '{"ok":true}',
             message: 'Something happened',
             file: '/tmp/example.php',
@@ -27,7 +31,10 @@ class CslLogTraceDataDTOTest extends TestCase
         $data = $dto->getLogTraceData();
 
         $this->assertSame('template', $data['messageTemplate']);
-        $this->assertSame(['context' => 'value'], $data['other']);
+        $this->assertSame(
+            ['startTime' => 1.0, 'endTime' => 1.25, 'durationMs' => 250],
+            $data['communicationTime']
+        );
         $this->assertSame('{"ok":true}', $data['responseBody']);
         $this->assertSame('Something happened', $data['message']);
         $this->assertSame('/tmp/example.php', $data['file']);
@@ -45,7 +52,7 @@ class CslLogTraceDataDTOTest extends TestCase
         $data = $dto->getLogTraceData();
 
         $this->assertSame('minimal', $data['messageTemplate']);
-        $this->assertNull($data['other']);
+        $this->assertNull($data['communicationTime']);
         $this->assertNull($data['responseBody']);
         $this->assertNull($data['message']);
         $this->assertNull($data['file']);

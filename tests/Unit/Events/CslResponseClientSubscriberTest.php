@@ -6,6 +6,7 @@ namespace CSL\Tests\Unit\Events;
 
 use CSL\Events\CslResponseClientSubscriber;
 use CSL\Events\DTO\CslEventsSubscriberDTO;
+use CSL\Service\ClientCommunicator\ClientCommunicator;
 use CSL\Service\ClientCommunicator\ClientCommunicatorInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -19,8 +20,7 @@ final class CslResponseClientSubscriberTest extends TestCase
     public function testSameRequestKeepsIdenticalRequestUidAcrossRepeatedResponseHandlingCalls(): void
     {
         $communicator = $this->createMock(ClientCommunicatorInterface::class);
-        $communicator->expects(self::exactly(2))->method('stopTimer');
-        $communicator->expects(self::exactly(2))->method('getCommunicationTime')->willReturn([]);
+        $communicator->expects(self::exactly(2))->method('stopAndTakeCommunicationTime')->willReturn([]);
 
         $subscriber = $this->createSubscriber($communicator);
         $kernel = $this->createStub(HttpKernelInterface::class);
@@ -44,8 +44,7 @@ final class CslResponseClientSubscriberTest extends TestCase
     public function testSubRequestsDoNotStopTimerOrLog(): void
     {
         $communicator = $this->createMock(ClientCommunicatorInterface::class);
-        $communicator->expects(self::never())->method('stopTimer');
-        $communicator->expects(self::never())->method('getCommunicationTime');
+        $communicator->expects(self::never())->method('stopAndTakeCommunicationTime');
 
         $psrLogger = $this->createMock(LoggerInterface::class);
         $psrLogger->expects(self::never())->method('info');
@@ -63,8 +62,11 @@ final class CslResponseClientSubscriberTest extends TestCase
     public function testMainRequestStopsTimerAndDoesNotModifyResponseContent(): void
     {
         $communicator = $this->createMock(ClientCommunicatorInterface::class);
-        $communicator->expects(self::once())->method('stopTimer')->with('Communication_x');
-        $communicator->expects(self::once())->method('getCommunicationTime')->with('Communication_x')->willReturn([]);
+        $communicator
+            ->expects(self::once())
+            ->method('stopAndTakeCommunicationTime')
+            ->with('Communication_x')
+            ->willReturn([]);
 
         $psrLogger = $this->createMock(LoggerInterface::class);
         $psrLogger
@@ -86,11 +88,28 @@ final class CslResponseClientSubscriberTest extends TestCase
         self::assertSame('text/plain', $response->headers->get('Content-Type'));
     }
 
+    public function testCompletedRequestLeavesNoRetainedTimer(): void
+    {
+        $communicator = new ClientCommunicator();
+        $communicator->startTimer('Communication_x');
+
+        $subscriber = $this->createSubscriber($communicator);
+        $kernel = $this->createStub(HttpKernelInterface::class);
+        $request = new Request();
+        $request->attributes->set('clientId', 'Communication_x');
+        $response = new Response('ok', 200);
+
+        $subscriber->onKernelResponse(
+            new ResponseEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, $response)
+        );
+
+        self::assertSame([], $communicator->stopAndTakeCommunicationTime('Communication_x'));
+    }
+
     public function testMainRequestWithoutClientIdDoesNotStopTimerButStillLogsAndSetsRequestUid(): void
     {
         $communicator = $this->createMock(ClientCommunicatorInterface::class);
-        $communicator->expects(self::never())->method('stopTimer');
-        $communicator->expects(self::never())->method('getCommunicationTime');
+        $communicator->expects(self::never())->method('stopAndTakeCommunicationTime');
 
         $psrLogger = $this->createMock(LoggerInterface::class);
         $psrLogger
