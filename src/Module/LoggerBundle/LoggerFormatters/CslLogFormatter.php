@@ -20,7 +20,7 @@ class CslLogFormatter extends LineFormatter implements CslLogFormatterInterface
             'resource' => $record->context['resource'] ?? null,
             'method' => $record->context['method'] ?? null,
             'ip' => $record->context['ip'] ?? null,
-            'other' => $record->context['other'] ?? null,
+            'communicationTime' => $record->context['communicationTime'] ?? null,
             'responseBody' => $record->context['responseBody'] ?? null,
             'message' => $record->context['message'] ?? $record->message,
             'file' => $record->context['file'] ?? null,

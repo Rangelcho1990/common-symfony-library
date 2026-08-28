@@ -62,9 +62,9 @@ class CslResponseClientSubscriber extends CslAbstractSubscriber
         $cslLogTraceDataDTO = new CslLogTraceDataDTO();
         $cslLogTraceDataDTO->prepareLogTraceData(
             'Info',
-            ['communicationTime' => $communicationTime],
+            $communicationTime,
             $content,
-            null,
+            'TraceReqeust',
             null,
             null,
             null,
