@@ -58,13 +58,29 @@ Endpoint-specific code lives under `src/Endpoints/`. The existing example endpoi
 
 Kernel event subscribers live under `src/Events/` and are autoconfigured through Symfony service discovery.
 
-- `CslRequestClientSubscriber` listens on `KernelEvents::REQUEST` with priority `300`. It creates a request UID with UUIDv7, stores a communication client ID on the request, and starts a timer through `ClientCommunicatorInterface`.
+- `CslRequestClientSubscriber` listens on `KernelEvents::REQUEST` with priority `300` and `KernelEvents::FINISH_REQUEST` with priority `-100`. It creates a request UID with UUIDv7, stores a communication client ID on the request, starts a timer through `ClientCommunicatorInterface`, and clears any timer that remains when the main request finishes.
 - `CslResponseInternalSubscriber` listens on `KernelEvents::RESPONSE` with priority `100`. It can transform successful main responses and skips responses that were already marked as CSL error responses.
-- `CslResponseClientSubscriber` listens on `KernelEvents::RESPONSE` with priority `50`. It logs request and response data, including communication timing.
+- `CslResponseClientSubscriber` listens on `KernelEvents::RESPONSE` with priority `50`. It atomically stops, consumes, and removes the communication timer before logging request and response data.
 - `CslErrorSubscriber` listens on `KernelEvents::EXCEPTION`. It logs exception details as critical events, marks the request as handled, and returns a JSON error response.
 - `CslAbstractSubscriber` centralizes shared subscriber state, request-data helpers, request attribute keys, and logger access.
 
 `CslEventsSubscriberDTO` provides subscribers with the parameter bag, validator, and CSL logger factory.
+
+#### Communication Timer Lifecycle
+
+Communication timer ownership follows the complete kernel request lifecycle:
+
+1. `kernel.request`: `CslRequestClientSubscriber` starts a timer for the main request.
+2. `kernel.response`: `CslResponseClientSubscriber` calls `stopAndTakeCommunicationTime()` to finish, consume, and remove the timer used by structured response logging.
+3. `kernel.finish_request`: `CslRequestClientSubscriber` calls `clearTimer()` as a fallback for any timer that was not consumed.
+
+The finish-request cleanup belongs to `CslRequestClientSubscriber` because that subscriber creates the timer. Keeping timer creation and guaranteed cleanup together gives one component ownership of the resource lifecycle. The response subscriber owns only successful response-time consumption and logging.
+
+Symfony dispatches `kernel.finish_request` after normal response handling and when an exception does not produce a response. The fallback therefore also covers exceptional requests, skipped response logging, and logging failures without retaining timer state in long-running workers.
+
+Finish cleanup is restricted to main requests. A subrequest can inherit request attributes, including the communication client ID, so allowing subrequest cleanup could remove the still-active timer belonging to its parent request.
+
+Registering `kernel.finish_request` on `CslResponseClientSubscriber` would be technically valid because it has the same communicator dependency. It is not used here because that would make a response-focused subscriber responsible for requests that may never reach `kernel.response`. If timer lifecycle management grows more complex, a dedicated communication-timer lifecycle subscriber would be the clearest separation.
 
 ### Domain and Persistence Layer
 
@@ -88,7 +104,7 @@ Database schema changes are stored in `migrations/` and are executed through Doc
 
 Reusable services live under `src/Service/`.
 
-`ClientCommunicator` implements `ClientCommunicatorInterface` and tracks request communication timing by client ID. Event subscribers use it to record start time, stop time, and duration in milliseconds.
+`ClientCommunicator` implements `ClientCommunicatorInterface` and tracks request communication timing by client ID. Event subscribers use it to record start time, stop time, and duration in milliseconds. Completed timing data is consumed through `stopAndTakeCommunicationTime()`, while `clearTimer()` removes unconsumed state.
 
 ### Exception Layer
 
@@ -143,7 +159,7 @@ Supported handler builders:
 Logger DTOs separate request metadata from trace metadata:
 
 - `CslLogRequestDataDTO` stores request body, resource URI, method, request UID, and client IPs.
-- `CslLogTraceDataDTO` stores timestamp, message template, additional data, response body, message, file, line, stack trace, and code.
+- `CslLogTraceDataDTO` stores timestamp, message template, communication timing, response body, message, file, line, stack trace, and code.
 
 `CslLogFormatter` serializes Monolog records to JSON lines with stable keys used by the subscriber logging flow.
 
