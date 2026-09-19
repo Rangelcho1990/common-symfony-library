@@ -167,7 +167,7 @@ Logger DTOs separate request metadata from trace metadata:
 - `CslLogRequestDataDTO` stores request body, resource URI, method, request UID, and client IPs.
 - `CslLogTraceDataDTO` stores timestamp, message template, communication timing, response body, message, file, line, stack trace, and code.
 
-`CslLogFormatter` serializes Monolog records to JSON lines with stable keys used by the subscriber logging flow.
+`CslLogFormatter` serializes Monolog records to a canonical JSON schema with stable keys used by the subscriber logging flow, one record per line. Stream handlers use this formatter; GELF handlers use `GelfHandlerFormatter` and the GELF message schema. Neither handler supports configurable format templates.
 
 ## Configuration Architecture
 

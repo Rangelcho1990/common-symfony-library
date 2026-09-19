@@ -18,7 +18,6 @@ class HandlerFactoryTest extends TestCase
         $loggerConfiguration = new LoggerConfigurationDTO();
         $loggerConfiguration->prepareConfigurationData('StreamHandler', [
             'level' => 100,
-            'format' => 'test',
             'host' => 'php://memory',
             'port' => null,
             'source' => null,

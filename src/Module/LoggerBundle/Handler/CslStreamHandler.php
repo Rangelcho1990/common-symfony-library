@@ -20,7 +20,7 @@ final class CslStreamHandler extends CslAbstractHandlerBuilder
         );
 
         $handlerInstance->setFormatter(
-            new CslLogFormatter($this->getLoggerConfiguration()->getFormat())
+            new CslLogFormatter()
         );
 
         return $handlerInstance;

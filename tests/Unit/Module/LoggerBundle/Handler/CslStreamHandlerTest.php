@@ -8,6 +8,7 @@ use CSL\Module\LoggerBundle\DTO\LoggerConfigurationDTO;
 use CSL\Module\LoggerBundle\Handler\CslHandlerBuilderInterface;
 use CSL\Module\LoggerBundle\Handler\CslStreamHandler;
 use Monolog\Handler\HandlerInterface;
+use Monolog\Handler\StreamHandler;
 use Monolog\Level;
 use Monolog\Logger;
 use Monolog\LogRecord;
@@ -23,7 +24,6 @@ class CslStreamHandlerTest extends TestCase
         $this->loggerConfigurationDTO = new LoggerConfigurationDTO();
         $data = [
             'level' => 100,
-            'format' => 'test',
             'host' => 'php://memory',
             'port' => null,
             'source' => null,
@@ -50,12 +50,32 @@ class CslStreamHandlerTest extends TestCase
         $this->assertInstanceOf(HandlerInterface::class, $cslStreamHandler->getHandler());
     }
 
+    public function testHandlerWritesCanonicalJsonWithoutFormatConfiguration(): void
+    {
+        $builder = new CslStreamHandler();
+        $builder->setLoggerConfiguration($this->loggerConfigurationDTO);
+        $handler = $builder->getHandler();
+        $this->assertInstanceOf(StreamHandler::class, $handler);
+        $handler->handle($this->logRecord);
+
+        $stream = $handler->getStream();
+        $this->assertIsResource($stream);
+        rewind($stream);
+        $output = stream_get_contents($stream);
+        $this->assertIsString($output);
+        $this->assertStringEndsWith(PHP_EOL, $output);
+        $data = json_decode($output, true, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsArray($data);
+        $this->assertSame('Hello from test', $data['message']);
+        $this->assertSame('ERROR', $data['level']);
+        $this->assertSame(400, $data['code']);
+    }
+
     public function testGetHandlerPreservesInvalidLogLevelException(): void
     {
         $loggerConfigurationDTO = new LoggerConfigurationDTO();
         $loggerConfigurationDTO->prepareConfigurationData('StreamHandler', [
             'level' => 350,
-            'format' => 'test',
             'host' => 'php://memory',
             'port' => null,
             'source' => null,

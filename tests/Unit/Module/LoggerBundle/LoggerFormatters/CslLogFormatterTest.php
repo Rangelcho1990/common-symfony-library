@@ -4,31 +4,18 @@ declare(strict_types=1);
 
 namespace CSL\Tests\Unit\Module\LoggerBundle\LoggerFormatters;
 
-use CSL\Module\LoggerBundle\DTO\LoggerConfigurationDTO;
 use CSL\Module\LoggerBundle\LoggerFormatters\CslLogFormatter;
-use Monolog\Formatter\LineFormatter;
+use Monolog\Formatter\FormatterInterface;
 use Monolog\Level;
 use Monolog\LogRecord;
 use PHPUnit\Framework\TestCase;
 
 class CslLogFormatterTest extends TestCase
 {
-    private LoggerConfigurationDTO $loggerConfigurationDTO;
     private LogRecord $logRecord;
 
     protected function setUp(): void
     {
-        $this->loggerConfigurationDTO = new LoggerConfigurationDTO();
-        $data = [
-            'level' => 100,
-            'format' => 'test',
-            'host' => 'php://memory',
-            'port' => null,
-            'source' => null,
-            'ignoreConnectionErrors' => null,
-        ];
-        $this->loggerConfigurationDTO->prepareConfigurationData('StreamHandler', $data);
-
         $this->logRecord = new LogRecord(
             datetime: new \DateTimeImmutable(),
             channel: 'test',
@@ -41,14 +28,26 @@ class CslLogFormatterTest extends TestCase
 
     public function testValidateCslLogFormatterInstance(): void
     {
-        $cslLogFormatter = new CslLogFormatter($this->loggerConfigurationDTO->getFormat());
+        $cslLogFormatter = new CslLogFormatter();
 
-        $this->assertInstanceOf(LineFormatter::class, $cslLogFormatter);
+        $this->assertInstanceOf(FormatterInterface::class, $cslLogFormatter);
+    }
+
+    public function testBatchProducesOneJsonLinePerRecord(): void
+    {
+        $formatter = new CslLogFormatter();
+
+        $this->assertSame('', $formatter->formatBatch([]));
+        $this->assertSame(
+            $formatter->format($this->logRecord).$formatter->format($this->logRecord),
+            $formatter->formatBatch([$this->logRecord, $this->logRecord])
+        );
+        $this->assertStringEndsWith(PHP_EOL, $formatter->format($this->logRecord));
     }
 
     public function testValidateCslLogFormatterResponseStructure(): void
     {
-        $cslLogFormatter = new CslLogFormatter($this->loggerConfigurationDTO->getFormat());
+        $cslLogFormatter = new CslLogFormatter();
         $response = $cslLogFormatter->format($this->logRecord);
         $response = json_decode($response, true);
 
