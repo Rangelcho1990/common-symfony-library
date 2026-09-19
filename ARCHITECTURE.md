@@ -208,6 +208,11 @@ The main runtime variables are:
 
 ### Doctrine
 
+In the test environment, DBAL appends `_csl_test` to the configured database name,
+including when `.env.test` is absent. Tests use the existing MySQL or PostgreSQL
+driver and a disposable database created with
+`php bin/console doctrine:database:create --env=test --if-not-exists`.
+
 Doctrine DBAL reads `DATABASE_URL`. ORM mapping uses attributes from `src/Entity/` with the `CSL\Entity` prefix. Production config disables automatic proxy generation and uses Symfony cache pools for Doctrine query and result caches.
 
 ### Nelmio API Documentation
@@ -276,6 +281,13 @@ PHPUnit is configured by `phpunit.dist.xml` with:
 - deprecation, notice, and warning failures enabled
 
 The test suite contains unit tests for entities, repositories, event subscribers, logger components, DTOs, handlers, formatters, and services, plus functional repository tests using `KernelTestCaseBase`.
+
+`ExampleRepositoryTest` checks its connection through `tests/Support/TestDatabaseGuard.php`
+before schema operations. The guard requires the test environment, a supported
+MySQL/PostgreSQL driver, and a nonempty base database name ending in `_csl_test`;
+custom drivers and primary/replica configurations are rejected. The repository
+test class rebuilds mapped tables once per process and rolls back a transaction
+after each test. Concurrent suite runs require distinct base database names.
 
 ## Development Commands
 
