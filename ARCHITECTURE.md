@@ -100,6 +100,12 @@ Repositories live in `src/Repository/`:
 
 Database schema changes are stored in `migrations/` and are executed through Doctrine Migrations.
 
+The examples migration builds its table with Doctrine schema objects and queues
+platform-generated creation SQL before inserting `User A` and `User B`. Fresh
+databases assign IDs 1 and 2 with default identity settings. Rollback drops only
+`examples`. MySQL and PostgreSQL connection examples are provided; changing this
+existing migration does not reseed databases where it has already run.
+
 ### Service Layer
 
 Reusable services live under `src/Service/`.
@@ -256,6 +262,7 @@ Redis integration is provided by `uzunov-labs/redis-service` and configured thro
 
 - `bin/`
 - `config/`
+- `migrations/`
 - `public/`
 - `src/`
 - `tests/`
@@ -288,6 +295,12 @@ MySQL/PostgreSQL driver, and a nonempty base database name ending in `_csl_test`
 custom drivers and primary/replica configurations are rejected. The repository
 test class rebuilds mapped tables once per process and rolls back a transaction
 after each test. Concurrent suite runs require distinct base database names.
+
+`ExamplesMigrationTest` uses the same database guard and runs two up/down cycles
+through Doctrine's migration executor. It checks seeded rows, subsequent generated
+IDs, and preservation of an unrelated `users` table. Migration metadata storage is
+stubbed so application migration history is unchanged. The test requires no
+pre-existing `users` table and removes `examples` during setup and cleanup.
 
 ## Development Commands
 
