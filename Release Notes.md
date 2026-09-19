@@ -1,5 +1,17 @@
 # Release Notes
 
+## Unreleased
+
+### Issue #23 — Correct examples migration rollback and database portability
+
+- Rollback drops only `examples`, preserving unrelated `users` tables and data.
+- Replaced MySQL-specific creation SQL with Doctrine-generated platform SQL and `addPrimaryKeyConstraint()`, and corrected the migration description.
+- Fresh migrations seed `User A` with ID `1` and `User B` with ID `2`; the next generated ID is `3` with default identity settings.
+- Added MySQL/PostgreSQL connection examples and included migrations in PHPStan analysis.
+- Compatibility: this updates the existing migration. Databases where it already ran are not automatically reseeded or altered. New tables use a signed integer ID matching the entity mapping and platform database defaults instead of the previous explicit MySQL engine/collation settings.
+- Coverage: `tests/Functional/Migrations/ExamplesMigrationTest.php` executes two up/down cycles, verifies seed rows and subsequent ID generation, and checks that unrelated user data survives. It requires a disposable `_csl_test` database without a pre-existing `users` table.
+- Validation: `composer test` passed with 81 tests and 291 assertions; PHPStan and changed-file formatting checks passed. Live PostgreSQL verification remains pending because `pdo_pgsql` is unavailable locally.
+
 ## Change 21 — Isolate functional tests from non-test databases
 
 Functional tests now use a dedicated database so schema setup cannot erase the normal development database when `.env.test` is missing.

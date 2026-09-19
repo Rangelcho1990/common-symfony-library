@@ -166,6 +166,16 @@ the `_csl_test` suffix. They rebuild mapped tables once per run and roll back da
 after each test. The test database is disposable: never store real data there.
 Concurrent suite runs should use distinct base database names in `DATABASE_URL`.
 
+The migration regression test runs the examples migration up and down twice using
+Doctrine's migration executor, checks generated IDs, and verifies that an unrelated
+`users` table and its data survive rollback. It requires a disposable test database
+without a pre-existing `users` table and removes `examples` during setup and cleanup.
+Run it against either supported server with:
+
+```bash
+php vendor/bin/phpunit tests/Functional/Migrations/ExamplesMigrationTest.php
+```
+
 ## Registered Bundles
 
 The application registers these bundles in `config/bundles.php`:
@@ -255,6 +265,12 @@ This repository depends on `uzunov-labs/redis-service`.
 - Ensure Composer can access the configured VCS repository for the Redis package.
 
 ## Doctrine
+
+MySQL and PostgreSQL are supported; install `pdo_mysql` or `pdo_pgsql` respectively.
+Both `.env.example` and `.env.test.example` include connection examples. Set
+`serverVersion` to match your server when specifying it in the URL.
+The examples migration uses Doctrine schema operations to generate platform-specific
+SQL and rolls back only the `examples` table.
 
 - Configure `DATABASE_URL`.
 - Generate a migration:
