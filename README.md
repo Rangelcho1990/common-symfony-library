@@ -147,6 +147,25 @@ DOCS_URI='/api/doc'
 
 For tests, use `.env.test.example` as the starting point.
 
+Tests use the existing MySQL or PostgreSQL driver and server. PHPUnit forces `APP_ENV=test`, and Doctrine always appends `_csl_test`
+to the database name from `DATABASE_URL`, even when `.env.test` is absent. For
+example, `app` becomes `app_csl_test`. Optionally set `DATABASE_URL` in
+`.env.test.local` to use a separate server or test credentials (use the base name
+without the suffix).
+
+Create the dedicated database once, then run the suite:
+
+```bash
+php bin/console doctrine:database:create --env=test --if-not-exists
+composer test
+```
+
+The database user needs schema creation/drop permissions on the test database.
+Repository tests refuse schema operations outside the test environment or without
+the `_csl_test` suffix. They rebuild mapped tables once per run and roll back data
+after each test. The test database is disposable: never store real data there.
+Concurrent suite runs should use distinct base database names in `DATABASE_URL`.
+
 ## Registered Bundles
 
 The application registers these bundles in `config/bundles.php`:

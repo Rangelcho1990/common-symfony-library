@@ -30,7 +30,8 @@ doctrine:
 when@test:
     doctrine:
         dbal:
-            url: '%env(resolve:DATABASE_URL)%'
+            # Always isolate tests, even when .env.test is absent.
+            dbname_suffix: '_csl_test'
 
 when@prod:
     doctrine:

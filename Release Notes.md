@@ -1,6 +1,32 @@
 # Release Notes
 
-## Unreleased
+## Change 21 — Isolate functional tests from non-test databases
+
+Functional tests now use a dedicated database so schema setup cannot erase the normal development database when `.env.test` is missing.
+
+### What changed
+
+- Test-only Doctrine configuration appends `_csl_test` to the database name from `DATABASE_URL`.
+- Added `TestDatabaseGuard` to reject schema operations outside the test environment or against unsupported connections and database names without the required suffix.
+- Repository tests rebuild mapped tables once per run and roll back test data after each test.
+- Updated the environment template, README, and architecture documentation with test database setup and cleanup behavior.
+
+### Setup and compatibility
+
+Tests reuse the existing MySQL/PostgreSQL driver; no additional PHP extension is required. Create the disposable test database once before running the suite:
+
+```bash
+php bin/console doctrine:database:create --env=test --if-not-exists
+composer test
+```
+
+The database user needs schema creation/drop permissions on the test database. Concurrent suite runs require distinct base database names in `DATABASE_URL`.
+
+### Tests
+
+- `tests/Unit/Support/TestDatabaseGuardTest.php` covers suffix application and rejection of unsafe connections.
+- `tests/Functional/Repository/ExampleRepositoryTest.php` covers repository queries and test data cleanup.
+- Verified with `composer test`: 80 tests, 265 assertions passed.
 
 ## Change 26 — Release communication timers after request logging
 
