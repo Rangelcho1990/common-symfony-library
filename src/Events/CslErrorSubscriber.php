@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace CSL\Events;
 
+use CSL\Exceptions\CslAbstractException;
 use CSL\Module\LoggerBundle\DTO\CslLogRequestDataDTO;
 use CSL\Module\LoggerBundle\DTO\CslLogTraceDataDTO;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class CslErrorSubscriber extends CslAbstractSubscriber
@@ -33,35 +36,46 @@ class CslErrorSubscriber extends CslAbstractSubscriber
             $event->getRequest()->getClientIps(),
         );
 
+        $exception = $event->getThrowable();
         $cslLogTraceDataDTO = new CslLogTraceDataDTO();
         $cslLogTraceDataDTO->prepareLogTraceData(
             'Error',
             null,
             null,
-            $event->getThrowable()->getMessage(),
-            null,
-            null,
-            $event->getThrowable()->getTrace(),
-            $event->getThrowable()->getCode()
+            $exception->getMessage(),
+            $exception->getFile(),
+            $exception->getLine(),
+            $exception->getTrace(),
+            $exception->getCode()
         );
 
         $this->cslLogger->getCriticalEvents()->logError($cslLogRequestDataDTO, $cslLogTraceDataDTO);
         unset($cslLogRequestDataDTO, $cslLogTraceDataDTO);
 
-        $responseData = json_encode([
-            'message' => $event->getThrowable()->getMessage(),
-            'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-        ]);
+        $status = Response::HTTP_INTERNAL_SERVER_ERROR;
+        $headers = [];
+        if ($exception instanceof HttpExceptionInterface) {
+            $status = $exception->getStatusCode();
+            // Preserve error protocol semantics without forwarding cookies, redirects,
+            // diagnostic headers, or headers that conflict with our JSON body.
+            foreach ($exception->getHeaders() as $name => $value) {
+                if (in_array(strtolower($name), ['www-authenticate', 'allow', 'retry-after'], true)) {
+                    $headers[$name] = $value;
+                }
+            }
+        } elseif ($exception instanceof CslAbstractException && $exception->getCode() >= 400 && $exception->getCode() <= 599) {
+            $status = $exception->getCode();
+        }
 
-        // TODO: match the error from Example Controller
+        $message = Response::$statusTexts[$status] ?? 'Internal Server Error';
+        if ($status >= 400 && $status < 500 && '' !== $exception->getMessage()) {
+            $message = $exception->getMessage();
+        }
 
-        $event->setResponse(
-            new Response(
-                false === $responseData ? null : $responseData,
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                ['content-type' => 'application/json'],
-            )
-        );
+        $response = new JsonResponse(null, $status, $headers);
+        $response->setEncodingOptions($response->getEncodingOptions() | JSON_INVALID_UTF8_SUBSTITUTE);
+        $response->setData(['message' => $message, 'code' => $status]);
+        $event->setResponse($response);
     }
 
     /**
