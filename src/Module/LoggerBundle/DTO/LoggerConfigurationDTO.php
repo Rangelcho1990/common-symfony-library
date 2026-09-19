@@ -12,7 +12,6 @@ class LoggerConfigurationDTO
     private string $handlerClass;
     private string $handlerNamespace;
     private int $level;
-    private string $format;
     private string $host;
     private ?int $port = null;
     private ?string $source = null;
@@ -21,7 +20,6 @@ class LoggerConfigurationDTO
     /**
      * @param array{
      *    level: int,
-     *    format: string,
      *    host: string,
      *    port: int|null,
      *    source: string|null,
@@ -36,15 +34,11 @@ class LoggerConfigurationDTO
         if (empty($handlerParams['level'])) {
             throw new \InvalidArgumentException('Level is required');
         }
-        if (empty($handlerParams['format'])) {
-            throw new \InvalidArgumentException('Format is required');
-        }
 
         $this->handlerClass = self::PREFIX_NAME.$handler;
         $this->handlerNamespace = self::PREFIX_NAMESPACE.$this->handlerClass;
         $this->host = $handlerParams['host'];
         $this->level = $handlerParams['level'];
-        $this->format = $handlerParams['format'];
 
         if (!empty($handlerParams['port'])) {
             $this->port = $handlerParams['port'];
@@ -67,11 +61,6 @@ class LoggerConfigurationDTO
     public function getHandlerNamespace(): string
     {
         return $this->handlerNamespace;
-    }
-
-    public function getFormat(): string
-    {
-        return $this->format;
     }
 
     public function getLevel(): int

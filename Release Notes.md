@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Issue #24 — Make logging formats explicit
+
+- Stream logging retains the canonical CSL JSON schema; GELF retains its dedicated message formatter.
+- Removed the unused `format` configuration requirement from the DTO, factory types, and YAML examples. Remove this setting from existing configurations.
+- `LoggerConfigurationDTO::getFormat()` and inherited `LineFormatter` configuration APIs are no longer available. Construct `CslLogFormatter` without arguments; batch output remains newline-delimited JSON.
+
 ### Issue #23 — Correct examples migration rollback and database portability
 
 - Rollback drops only `examples`, preserving unrelated `users` tables and data.

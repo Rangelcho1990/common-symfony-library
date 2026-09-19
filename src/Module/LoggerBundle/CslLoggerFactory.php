@@ -35,7 +35,6 @@ class CslLoggerFactory implements CslLoggerFactoryInterface
          * @var array{
          *    string: array{
          *      level: int,
-         *      format: string,
          *      host: string,
          *      port: int|null,
          *      source: string|null,

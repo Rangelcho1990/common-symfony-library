@@ -54,7 +54,6 @@ class CslGelfHandlerTcpTest extends TestCase
         $loggerConfigurationDTO = new LoggerConfigurationDTO();
         $loggerConfigurationDTO->prepareConfigurationData('GelfHandlerTcp', [
             'level' => 200,
-            'format' => 'test',
             'host' => '127.0.0.1',
             'port' => $port,
             'source' => 'test-source',

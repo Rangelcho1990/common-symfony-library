@@ -32,7 +32,6 @@ class CslLoggerFactoryTest extends TestCase
             ->willReturn([
                 'StreamHandler' => [
                     'level' => 100,
-                    'format' => 'test',
                     'host' => 'php://memory',
                     'port' => null,
                     'source' => null,

@@ -29,7 +29,6 @@ class CslAbstractHandlerBuilderTest extends TestCase
         $loggerConfigurationDTO = new LoggerConfigurationDTO();
         $loggerConfigurationDTO->prepareConfigurationData('StreamHandler', [
             'level' => 350,
-            'format' => 'test',
             'host' => 'php://memory',
             'port' => null,
             'source' => null,

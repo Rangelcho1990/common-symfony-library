@@ -250,11 +250,12 @@ parameters:
         StreamHandler:
             host: "php://stdout"
             level: 100
-            format: '{"timestamp": ":timestamp:", "level": ":level:", "messageTemplate": "{@Type}, EventId: {@EventId} {@Metrics}", "additional_data": { "requestUid": "", "requestBodyStringified": "", "requestQuery": "", "method": "", "ip": "", "other": "", "responseBodyStringified": "", "message": "", "errorMessage": "", "errorFile": "", "errorLine": "", "stackTrace": ""}}'
     app_name: "common-service-template-api"
 ```
 
-To send logs to Graylog, configure `GelfHandlerTcp` with a host, port, source, level, and formatter.
+Stream handlers always emit the canonical CSL JSON schema, one record per line. Custom format templates are not supported. Remove the obsolete `format` setting from existing handler configurations.
+
+To send logs to Graylog, configure `GelfHandlerTcp` with a host, port, source, and level (optionally `ignoreConnectionErrors`). GELF handlers always use `GelfHandlerFormatter` to produce GELF messages. Neither handler accepts a format template.
 
 ## Redis Service
 

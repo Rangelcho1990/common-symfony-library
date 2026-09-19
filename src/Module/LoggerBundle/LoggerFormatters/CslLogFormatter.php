@@ -4,11 +4,24 @@ declare(strict_types=1);
 
 namespace CSL\Module\LoggerBundle\LoggerFormatters;
 
-use Monolog\Formatter\LineFormatter;
+use Monolog\Formatter\FormatterInterface;
 use Monolog\LogRecord;
 
-class CslLogFormatter extends LineFormatter implements CslLogFormatterInterface
+class CslLogFormatter implements FormatterInterface, CslLogFormatterInterface
 {
+    /**
+     * @param array<LogRecord> $records
+     */
+    public function formatBatch(array $records): string
+    {
+        $output = '';
+        foreach ($records as $record) {
+            $output .= $this->format($record);
+        }
+
+        return $output;
+    }
+
     public function format(LogRecord $record): string
     {
         return json_encode([
