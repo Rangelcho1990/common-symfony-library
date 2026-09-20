@@ -64,7 +64,7 @@ Kernel event subscribers live under `src/Events/` and are autoconfigured through
 - `CslErrorSubscriber` listens on `KernelEvents::EXCEPTION`. It logs exception details as critical events, marks the request as handled, and returns a JSON error response.
 - `CslAbstractSubscriber` centralizes shared subscriber state, request-data helpers, request attribute keys, and logger access.
 
-`CslEventsSubscriberDTO` provides subscribers with the parameter bag, validator, and CSL logger factory.
+`CslEventsSubscriberDTO` provides subscribers with the parameter bag, validator, and shared `CslLoggerInterface` service.
 
 #### Communication Timer Lifecycle
 
@@ -130,7 +130,7 @@ The custom logger module lives under `src/Module/LoggerBundle/` and builds on Mo
 
 ### Logger Composition
 
-`CslLoggerFactory` creates a Monolog logger from configured handler parameters and registers Monolog's error handler through `CSL\Module\ErrorHandler\AbstractErrorHandler`.
+`CslLoggerFactory` creates the dedicated `csl.logger` service from configured handler parameters. Dependency injection shares this logger and its `CslLoggerInterface` wrapper across subscribers. CSL does not replace Symfony's Monolog handlers or register process-global error handlers; Symfony retains responsibility for global error handling. The dedicated logger is reset with the kernel to support long-running workers.
 
 The resulting logger is wrapped by `CslLogger`, which exposes event-focused logger helpers:
 

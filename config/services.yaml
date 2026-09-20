@@ -18,3 +18,5 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+            - '../src/Module/LoggerBundle/CslLoggerFactory.php'
+            - '../src/Module/LoggerBundle/CslLogger/CslLogger.php'

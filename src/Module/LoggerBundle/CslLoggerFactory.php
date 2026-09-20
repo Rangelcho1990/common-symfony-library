@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CSL\Module\LoggerBundle;
 
 use CSL\Exceptions\NotImplementedException;
-use CSL\Module\ErrorHandler\AbstractErrorHandler;
 use CSL\Module\LoggerBundle\DTO\LoggerConfigurationDTO;
 use CSL\Module\LoggerBundle\Handler\Factory\HandlerFactoryInterface;
 use Monolog\Logger;
@@ -17,9 +16,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 class CslLoggerFactory implements CslLoggerFactoryInterface
 {
     public function __construct(
-        private readonly Logger $monologLogger,
         private readonly ContainerBagInterface $parameterBag,
-        private readonly AbstractErrorHandler $abstractErrorHandler,
         private readonly HandlerFactoryInterface $handlerFactory,
     ) {
     }
@@ -57,11 +54,6 @@ class CslLoggerFactory implements CslLoggerFactoryInterface
             $handlersInstance[] = $this->handlerFactory->createHandler($loggerConfiguration);
         }
 
-        $logger = $this->monologLogger;
-        $logger->setHandlers($handlersInstance);
-
-        $this->abstractErrorHandler->handle($logger);
-
-        return $logger;
+        return new Logger('csl', $handlersInstance);
     }
 }

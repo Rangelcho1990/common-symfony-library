@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace CSL\Events\DTO;
 
-use CSL\Module\LoggerBundle\CslLogger\CslLogger;
-use CSL\Module\LoggerBundle\CslLoggerFactory;
+use CSL\Module\LoggerBundle\CslLogger\CslLoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -14,7 +13,7 @@ class CslEventsSubscriberDTO
     public function __construct(
         private readonly ContainerBagInterface $parameterBag,
         private readonly ValidatorInterface $validator,
-        private readonly CslLoggerFactory $loggerFactory,
+        private readonly CslLoggerInterface $cslLogger,
     ) {
     }
 
@@ -28,10 +27,8 @@ class CslEventsSubscriberDTO
         return $this->validator;
     }
 
-    public function getCslLogger(): CslLogger
+    public function getCslLogger(): CslLoggerInterface
     {
-        return new CslLogger(
-            $this->loggerFactory->createLogger()
-        );
+        return $this->cslLogger;
     }
 }
