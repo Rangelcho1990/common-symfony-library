@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Issue #27 — Start communication timing after route resolution
+
+- Request initialization now runs at kernel-request priority 31, after Symfony routing at 32, so documentation, profiler, and toolbar route exclusions prevent communication timers from starting during real requests.
+- Normal main requests continue to receive request/client IDs and timers; subrequests remain excluded and existing identifier reuse and timer cleanup are preserved.
+- Compatibility: IDs and timers are now initialized after routing, and measured time excludes route resolution. Earlier listeners cannot rely on these attributes; routing failures and responses that stop propagation before initialization do not start timers. No API, configuration, or database migration is required.
+- Coverage: ten real-router event-order regression cases start without `_route` and cover documentation/profiler/toolbar exclusions, normal main-request IDs and timing, and subrequests. The full PHPUnit suite passed (110 tests, 586 assertions), along with PHPStan level 10, changed-file formatting checks, and test-container lint.
+
 ### Issue #22 — Configure the CSL logger once without global side effects
 
 - CSL now uses a dedicated shared `csl.logger` service and injects its `CslLoggerInterface` wrapper into the subscriber dependency DTO. Repeated subscriber construction reuses the same logger and handlers, avoiding repeated setup and duplicate handler registration.

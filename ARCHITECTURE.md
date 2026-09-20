@@ -58,19 +58,53 @@ Endpoint-specific code lives under `src/Endpoints/`. The existing example endpoi
 
 Kernel event subscribers live under `src/Events/` and are autoconfigured through Symfony service discovery.
 
-- `CslRequestClientSubscriber` listens on `KernelEvents::REQUEST` with priority `300` and `KernelEvents::FINISH_REQUEST` with priority `-100`. It creates a request UID with UUIDv7, stores a communication client ID on the request, starts a timer through `ClientCommunicatorInterface`, and clears any timer that remains when the main request finishes.
+- `CslRequestClientSubscriber` listens on `KernelEvents::REQUEST` with priority `31` and `KernelEvents::FINISH_REQUEST` with priority `-100`. It creates a request UID with UUIDv7, stores a communication client ID on the request, starts a timer through `ClientCommunicatorInterface`, and clears any timer that remains when the main request finishes.
 - `CslResponseInternalSubscriber` listens on `KernelEvents::RESPONSE` with priority `100`. It can transform successful main responses and skips responses that were already marked as CSL error responses.
 - `CslResponseClientSubscriber` listens on `KernelEvents::RESPONSE` with priority `50`. It atomically stops, consumes, and removes the communication timer before logging request and response data.
-- `CslErrorSubscriber` listens on `KernelEvents::EXCEPTION`. It logs exception details as critical events, marks the request as handled, and returns a JSON error response.
+- `CslErrorSubscriber` listens on `KernelEvents::EXCEPTION` with the default priority `0`. It logs exception details as critical events, marks the request as handled, and returns a JSON error response.
 - `CslAbstractSubscriber` centralizes shared subscriber state, request-data helpers, request attribute keys, and logger access.
 
 `CslEventsSubscriberDTO` provides subscribers with the parameter bag, validator, and shared `CslLoggerInterface` service.
+
+#### Subscriber Priority Order
+
+The intended CSL flow follows the request from the client to an internal service and the response back to the client. The stages below are in lifecycle order; priority numbers only control listener order **within the same Symfony event**.
+
+| Stage | Subscriber | Responsibility in the intended flow | Current implementation | Priority |
+| ---: | --- | --- | --- | --- |
+| 1 | `CslRequestClientSubscriber` | Receive the request from the client and initialize request tracking. | Implemented on `kernel.request`. Initializes request/client IDs and starts timing for normal main requests; excludes documentation, profiler, and toolbar routes. | **31** — after Symfony routing at **32**, so `_route` is available for exclusions. |
+| 2 | `CslRequestInternalSubscriber` (planned) | Transform the client request from stage 1 and send it to the internal service. | Not implemented. No event or priority has been registered. | **Not assigned. Proposed: 30** if registered on `kernel.request`, to run after stage 1 at **31**. |
+| 3 | `CslResponseInternalSubscriber` | Receive the internal-service response from stage 2 and transform it into the required structure. | Currently runs on `kernel.response` and applies `ExampleTransformer` to eligible main responses. The stage-2 internal-service integration is not implemented yet. | **100** — before client response logging at **50**, so logging sees the transformed response. |
+| 4 | `CslResponseClientSubscriber` | Complete processing of the response that will be returned to the client. | Implemented on `kernel.response`. Consumes the communication timer and logs request/response data. Symfony sends the resulting response to the client. | **50** — after internal transformation at **100**, so timing and logging include that stage. |
+
+**Why these priorities?** Symfony runs higher numbers first within one event. The ordering constraints matter more than the exact numbers:
+
+- **31 for stage 1:** Symfony's router runs at **32**. Choosing the next lower integer makes route-name exclusions possible while keeping tracking early in the request event. The previous **300** ran before routing and caused the documentation-timing bug. Other lower values could run after routing, but might also move initialization behind additional listeners.
+- **30 proposed for stage 2:** this is the next lower integer after **31**, so tracking is initialized before transforming and forwarding the request. This is a documentation proposal only; the eventual implementation must also consider other application listeners and how the internal-service response enters Symfony's response lifecycle.
+- **100 for stage 3 and 50 for stage 4:** these are the existing application priorities. Their useful property is **100 > 50**, which guarantees internal transformation before client response logging. There is no special Symfony meaning to these two numbers, and the gap of **50** does not represent elapsed time; it leaves room for other response listeners between them. No change to these priorities is needed for issue #27.
+
+Priorities are not global stage numbers: request priority **31** executes before response priority **100** because Symfony dispatches the request event first. The proposed **30** does not mean stage 2 will run after response priority **50**.
+
+
+Intended flow: **client → request tracking → internal request transformation and dispatch (planned) → internal response transformation → client response**.
+
+The current normal flow is routing → request tracking → controller → internal response transformation → client response logging → timer cleanup. Stage 2 is a planned extension, not an existing internal-service call. Response priorities **100 → 50** do not run before request priority **31**: `kernel.request` and `kernel.response` are separate events dispatched at different lifecycle stages.
+
+Supporting listeners sit outside the four main stages:
+
+- Symfony `RouterListener::onKernelRequest()` runs at request priority **32**, before stage 1, to populate `_route` for route exclusions. Tracking starts after routing, so timing excludes route resolution.
+- `CslErrorSubscriber::onKernelException()` runs at the default exception priority **0** when an exception is raised. It logs the exception and provides a JSON error response for non-excluded routes. Response processing can then continue; stage 3 skips CSL error responses.
+- `CslRequestClientSubscriber::onKernelFinishRequest()` runs at finish-request priority **-100** and clears any remaining main-request timer.
+
+An earlier listener can stop event propagation. Routing failures or early responses that bypass stage 1 have no timer; error/response logging tolerates missing IDs and timers. Subrequests do not initialize or clean up main-request timers.
+
+Inspect registered listeners with `php bin/console debug:event-dispatcher kernel.request --env=dev` (replace the event name to inspect response, exception, or finish-request listeners).
 
 #### Communication Timer Lifecycle
 
 Communication timer ownership follows the complete kernel request lifecycle:
 
-1. `kernel.request`: `CslRequestClientSubscriber` starts a timer for the main request.
+1. `kernel.request`: `CslRequestClientSubscriber` starts a timer after routing for a normal main request, excluding documentation, profiler, and toolbar routes.
 2. `kernel.response`: `CslResponseClientSubscriber` calls `stopAndTakeCommunicationTime()` to finish, consume, and remove the timer used by structured response logging.
 3. `kernel.finish_request`: `CslRequestClientSubscriber` calls `clearTimer()` as a fallback for any timer that was not consumed.
 

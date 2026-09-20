@@ -70,6 +70,11 @@ relevant staged, unstaged, and untracked files in the review.
 - Preserve historical entries and generated counts. Record `Updated` or
   `Not required`, with a reason, in the review's `Release Notes` section.
 
+## Documentation updates
+
+- Review `ARCHITECTURE.md` and `README.md` for every task. Update them when changes affect architecture, execution order, public behavior, configuration, setup, usage, or development workflows.
+- Keep subscriber priorities and lifecycle documentation consistent with the implementation. Record `Updated` or `Not required`, with a short reason, for each document in the task review or completion report.
+
 ## Completion report
 
 Briefly report each requested work item's status and the outcome of all four
@@ -77,3 +82,7 @@ jobs. Shared reviews and validation may cover multiple items, but make their
 coverage clear. Link the review and release notes when changed, summarize
 validation, and identify unresolved findings or blockers. Do not silently omit
 an item or a job that was not applicable; record `Not required` with a reason.
+
+Present the completion result in canvas, including the requested work-item status,
+changes, validation results, documentation updates, and any unresolved findings or
+blockers. Keep the result concise and link the relevant repository documents.

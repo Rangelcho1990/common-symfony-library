@@ -314,6 +314,10 @@ Composer also runs Symfony Flex auto-scripts after install and update:
 - `cache:clear`
 - `assets:install %PUBLIC_DIR%`
 
+## Subscriber Execution Order
+
+The intended flow is client request tracking → internal request transformation and dispatch (planned) → internal response transformation → client response. `CslRequestInternalSubscriber` is not implemented yet. Existing request tracking runs after routing; internal response transformation runs before response logging, and Symfony sends the response to the client. See [Subscriber Priority Order](ARCHITECTURE.md#subscriber-priority-order) for the four stages, current implementation status, and priorities within each event.
+
 ## Development Checks
 
 Run the main local checks before opening or merging changes:

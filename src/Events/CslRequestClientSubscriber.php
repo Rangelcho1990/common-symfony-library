@@ -68,7 +68,8 @@ class CslRequestClientSubscriber extends CslAbstractSubscriber
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::REQUEST => ['onKernelRequest', 300],
+            // Route-name exclusions need RouterListener to run first (priority 32).
+            KernelEvents::REQUEST => ['onKernelRequest', 31],
             KernelEvents::FINISH_REQUEST => ['onKernelFinishRequest', -100],
         ];
     }
