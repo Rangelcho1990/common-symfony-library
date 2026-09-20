@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Issue #22 — Configure the CSL logger once without global side effects
+
+- CSL now uses a dedicated shared `csl.logger` service and injects its `CslLoggerInterface` wrapper into the subscriber dependency DTO. Repeated subscriber construction reuses the same logger and handlers, avoiding repeated setup and duplicate handler registration.
+- Logger creation no longer replaces Symfony's default Monolog handlers or registers global PHP error, exception, and shutdown handlers. Symfony retains its configured handlers, channels, and global error handling; the dedicated CSL logger participates in kernel resets.
+- Compatibility: direct `CslLoggerFactory` construction now takes only the parameter bag and handler factory. `CslEventsSubscriberDTO` now takes `CslLoggerInterface` as its third argument and returns that interface. The application-level `Monolog\Logger` alias is removed; inject `Psr\Log\LoggerInterface` for general logging or `CslLoggerInterface` for CSL events. Framework logs and uncaught process-level errors use Symfony's pipeline; default logger handlers and processors are not inherited by the dedicated CSL logger. Existing CSL handler parameters and event methods are unchanged.
+- Coverage: `CslLoggerFactoryTest` verifies dedicated logger configuration and preservation of PHP error/exception callbacks. `CslLoggerServiceTest` verifies shared service identity, repeated subscriber construction without duplicated handlers or records, and preservation of default/Doctrine handlers and default processors. Validation passed with 97 unit and logger functional tests (502 assertions), PHPStan level 10, changed-file formatting checks, and test/dev/prod container checks; database functional tests were not run for this change.
+
 ### Issue #20 — Map exceptions to safe HTTP error responses
 
 - Symfony HTTP exceptions retain their status and the `WWW-Authenticate`, `Allow`, and `Retry-After` headers. CSL exceptions use their intended 400–599 status codes; unexpected failures and invalid/default CSL codes return 500.

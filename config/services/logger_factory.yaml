@@ -1,11 +1,18 @@
 services:
-    # Alias Monolog\Logger to monolog.logger service
-    Monolog\Logger: '@monolog.logger'
-
     CSL\Module\LoggerBundle\CslLoggerFactory:
         arguments:
-            $monologLogger: '@monolog.logger'
             $parameterBag: '@parameter_bag'
-            $abstractErrorHandler: '@CSL\Module\ErrorHandler\AbstractErrorHandler'
             $handlerFactory: '@CSL\Module\LoggerBundle\Handler\Factory\HandlerFactoryInterface'
-        autowire: false
+
+    csl.logger:
+        class: Monolog\Logger
+        factory: ['@CSL\Module\LoggerBundle\CslLoggerFactory', 'createLogger']
+        shared: true
+        tags: [{ name: kernel.reset, method: reset }]
+
+    CSL\Module\LoggerBundle\CslLogger\CslLogger:
+        arguments:
+            $logger: '@csl.logger'
+
+    CSL\Module\LoggerBundle\CslLogger\CslLoggerInterface:
+        alias: CSL\Module\LoggerBundle\CslLogger\CslLogger

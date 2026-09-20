@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CSL\Tests\Unit\Module\LoggerBundle;
 
 use CSL\Exceptions\NotImplementedException;
-use CSL\Module\ErrorHandler\AbstractErrorHandler;
 use CSL\Module\LoggerBundle\CslLoggerFactory;
 use CSL\Module\LoggerBundle\Handler\Factory\HandlerFactoryInterface;
 use Monolog\Logger;
@@ -44,15 +43,31 @@ class CslLoggerFactoryTest extends TestCase
         $handlerFactory = $this->createStub(HandlerFactoryInterface::class);
         $handlerFactory->method('createHandler')->willReturn($handler);
 
-        $errorHandler = $this->createStub(AbstractErrorHandler::class);
-
         $clsLoggerFactory = new CslLoggerFactory(
-            new Logger('test'),
             $parameterBag,
-            $errorHandler,
             $handlerFactory
         );
 
-        $this->assertInstanceOf(LoggerInterface::class, $clsLoggerFactory->createLogger());
+        $errorHandler = static fn (): bool => false;
+        $exceptionHandler = static function (\Throwable $exception): void {};
+        set_error_handler($errorHandler);
+        set_exception_handler($exceptionHandler);
+
+        try {
+            $logger = $clsLoggerFactory->createLogger();
+            self::assertInstanceOf(LoggerInterface::class, $logger);
+            self::assertInstanceOf(Logger::class, $logger);
+            self::assertSame('csl', $logger->getName());
+            self::assertSame([$handler], $logger->getHandlers());
+            $currentErrorHandler = set_error_handler($errorHandler);
+            restore_error_handler();
+            $currentExceptionHandler = set_exception_handler($exceptionHandler);
+            restore_exception_handler();
+            self::assertSame($errorHandler, $currentErrorHandler);
+            self::assertSame($exceptionHandler, $currentExceptionHandler);
+        } finally {
+            restore_exception_handler();
+            restore_error_handler();
+        }
     }
 }

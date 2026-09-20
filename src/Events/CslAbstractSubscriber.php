@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CSL\Events;
 
 use CSL\Events\DTO\CslEventsSubscriberDTO;
-use CSL\Module\LoggerBundle\CslLogger\CslLogger;
+use CSL\Module\LoggerBundle\CslLogger\CslLoggerInterface;
 use CSL\Module\Traits\RequestDataTrait;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,7 +31,7 @@ abstract class CslAbstractSubscriber implements EventSubscriberInterface
     ];
 
     protected CslEventsSubscriberDTO $cslEventsSubscriberDTO;
-    protected CslLogger $cslLogger;
+    protected CslLoggerInterface $cslLogger;
 
     public function __construct(CslEventsSubscriberDTO $cslEventsSubscriberDTO)
     {
