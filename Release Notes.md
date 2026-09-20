@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Issue #20 — Map exceptions to safe HTTP error responses
+
+- Symfony HTTP exceptions retain their status and the `WWW-Authenticate`, `Allow`, and `Retry-After` headers. CSL exceptions use their intended 400–599 status codes; unexpected failures and invalid/default CSL codes return 500.
+- Error responses now use `JsonResponse` with the existing `message` and `code` fields and tolerate invalid UTF-8. Server errors return generic status text to prevent disclosure of infrastructure details; exception messages, codes, file, line, and traces remain in server logs.
+- Compatibility: clients must handle meaningful error statuses instead of expecting every failure to be 500, and must not depend on raw server-error messages. Known 4xx messages remain client-visible and must contain safe text. Other exception headers are not forwarded.
+- Coverage: `tests/Unit/Events/CslErrorSubscriberTest.php` checks HTTP and CSL status mapping, unexpected failures, diagnostic logging, header filtering, malformed UTF-8, and request lifecycle behavior. Validation of the implementation passed with 99 PHPUnit tests and 507 assertions, PHPStan level 10, and changed-file formatting checks.
+
 ### Issue #24 — Make logging formats explicit
 
 - Stream logging retains the canonical CSL JSON schema; GELF retains its dedicated message formatter.
