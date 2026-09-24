@@ -318,6 +318,59 @@ Composer also runs Symfony Flex auto-scripts after install and update:
 
 The intended flow is client request tracking → internal request transformation and dispatch (planned) → internal response transformation → client response. `CslRequestInternalSubscriber` is not implemented yet. Existing request tracking runs after routing; internal response transformation runs before response logging, and Symfony sends the response to the client. See [Subscriber Priority Order](ARCHITECTURE.md#subscriber-priority-order) for the four stages, current implementation status, and priorities within each event.
 
+## Response Transformer Validation
+
+`CSL\Module\Endpoint\Transformer\Response\Validation\ResponseTransformerValidatorInterface` validates
+only the response transformer associated with a matched endpoint route. Inject it
+where validation is needed and call it after routing:
+
+```php
+$routeName = $request->attributes->get('_route');
+if (!is_string($routeName) || '' === $routeName) {
+    throw new \LogicException('A matched route is required.');
+}
+$transformerClass = $responseTransformerValidator->validate($routeName);
+```
+
+The resolver reads the route's configured `_controller`; Symfony owns route matching
+and controller existence/callability checks. CSL does not autoload or reflect the
+controller again. Route names do not need to mirror directory names. For example, route `example` points to
+`CSL\Endpoints\Examples\ExampleList\Controller\ExampleController::example`, so
+the validator requires
+`CSL\Endpoints\Examples\ExampleList\Controller\Transformer\Response\ExampleTransformer`.
+The naming convention is `<Name>Controller` → `Transformer\Response\<Name>Transformer`.
+
+The method returns the existing concrete class name or throws `LogicException`
+with the route and configuration problem. It never constructs or executes the
+transformer, checks payload data, or requires request/access/validation classes.
+Controller definitions must use a class name or `Class::method`; service IDs and
+other callable formats are not supported by this convention resolver.
+
+`CslResponseInternalSubscriber` now invokes validation after its existing main-request,
+documentation-route, handled-error, and HTTP error-status checks. Missing, empty, or
+non-string `_route` values leave the response unchanged. The validated class is
+retrieved through `CSL\Module\Endpoint\Transformer\Response\Provider\ResponseTransformerProviderInterface`, using Symfony's lazy service
+locator rather than direct construction.
+
+Response transformers must implement
+`CSL\Module\Endpoint\Transformer\Response\ResponseTransformerInterface`, which declares
+`transformContent(): string`, `getStatusCode(): int`, and `getContentType(): string`.
+Existing autoconfiguration tags implementations automatically; register them under
+their fully qualified class names. Constructor dependencies are injected normally,
+and private services remain private. Transformers are shared by default, so keep
+request-specific state out of their properties.
+
+The subscriber applies the selected transformer's content, status, and content type.
+Missing classes, invalid conventions, unregistered services, and incompatible service
+types raise configuration exceptions handled by the existing error pipeline. The
+example transformer now implements the contract. Direct subscriber construction
+requires the validator and provider in addition to the subscriber DTO.
+
+This integration retains the existing response eligibility rules; it does not yet
+add explicit per-response opt-in or protect all successful HTML, redirect, download,
+and empty responses described in issue #19. Request transformer, access, and input
+validation remain separate future functionality.
+
 ## Development Checks
 
 Run the main local checks before opening or merging changes:
