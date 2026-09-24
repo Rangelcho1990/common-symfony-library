@@ -4,25 +4,26 @@ declare(strict_types=1);
 
 namespace CSL\Endpoints\Examples\ExampleList\Controller\Transformer\Response;
 
+use CSL\Module\Endpoint\Transformer\Response\ResponseTransformerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-class ExampleTransformer
+class ExampleTransformer implements ResponseTransformerInterface
 {
     public function getStatusCode(): int
     {
-        // TODO: move to abstract base class.
+        // TODO: move to abstract base class for the example domain
         return Response::HTTP_OK;
     }
 
     public function getContentType(): string
     {
-        // TODO: move to abstract base class.
+        // TODO: move to abstract base class for the example domain
         return 'application/json';
     }
 
     public function transformContent(): string
     {
-        // 1. Prepare response => use abstract base class.
+        // 1. Prepare response => use abstract base class for the example domain
         // 2. check for error and transform the error if need it.
         // 3. Transform data if need it.
 

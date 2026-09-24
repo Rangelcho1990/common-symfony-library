@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Issue #19 — Validate and retrieve response transformers by route
+
+- `CslResponseInternalSubscriber` now validates the matched `_route` and retrieves its response transformer through a separate provider backed by Symfony's lazy service locator. Removed hard-coded `ExampleTransformer` construction; route resolution, class validation, service retrieval, and execution have separate responsibilities.
+- Controller existence/callability checks are delegated to Symfony; CSL extracts the configured controller name without autoloading or reflecting it, retaining the endpoint naming convention needed to locate the transformer.
+- Added `CSL\Module\Endpoint\Transformer\Response\ResponseTransformerInterface` with the existing content/status/content-type methods. Update imports and any explicit tag names from its former `CSL\Module\Endpoint\Transformer\ResponseTransformerInterface` location. Implementations are automatically tagged, can remain private, and receive constructor dependencies through Symfony. The example transformer implements the contract. Missing/invalid route names preserve the response; invalid endpoint conventions, missing transformer services, and incompatible service types raise configuration exceptions.
+- Compatibility: response-validator classes now live under `CSL\Module\Endpoint\Transformer\Response\Validation`; update imports from the former `CSL\Module\Endpoint\Validation` namespace. Provider classes now live under `CSL\Module\Endpoint\Transformer\Response\Provider`; update imports from the former `CSL\Module\Endpoint\Provider` namespace. Direct subscriber construction now requires validator and provider dependencies. Register transformer implementations under their fully qualified class names and keep shared services stateless. Existing response eligibility and mutation rules remain; explicit response opt-in and complete non-API response preservation from the original issue remain separate work. Request/access/input validators are not part of this change. No database migration is required.
+- Validation: all 131 PHPUnit tests passed (654 assertions), including route-to-subscriber integration, dependency-injected transformer retrieval, missing-route/validation/provider failures, lifecycle exclusions, and guarded MySQL tests. Full-project PHPStan level 10, changed/new-file formatting, test/dev/prod container lint, and whitespace checks passed.
+
 ### Issue #27 — Start communication timing after route resolution
 
 - Request initialization now runs at kernel-request priority 31, after Symfony routing at 32, so documentation, profiler, and toolbar route exclusions prevent communication timers from starting during real requests.

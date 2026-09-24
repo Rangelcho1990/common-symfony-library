@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace CSL\Events\DTO;
 
+use CSL\Module\Endpoint\Transformer\Response\Provider\ResponseTransformerProviderInterface;
+use CSL\Module\Endpoint\Transformer\Response\Validation\ResponseTransformerValidatorInterface;
 use CSL\Module\LoggerBundle\CslLogger\CslLoggerInterface;
-use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CslEventsSubscriberDTO
 {
     public function __construct(
-        private readonly ContainerBagInterface $parameterBag,
-        private readonly ValidatorInterface $validator,
+        private readonly ResponseTransformerProviderInterface $responseTransformerProvider,
+        private readonly ResponseTransformerValidatorInterface $responseTransformerValidator,
         private readonly CslLoggerInterface $cslLogger,
     ) {
     }
 
-    public function getParameterBag(): ContainerBagInterface
+    public function getResponseTransformerProvider(): ResponseTransformerProviderInterface
     {
-        return $this->parameterBag;
+        return $this->responseTransformerProvider;
     }
 
-    public function getValidator(): ValidatorInterface
+    public function getResponseTransformerValidator(): ResponseTransformerValidatorInterface
     {
-        return $this->validator;
+        return $this->responseTransformerValidator;
     }
 
     public function getCslLogger(): CslLoggerInterface

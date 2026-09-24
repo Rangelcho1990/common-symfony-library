@@ -52,14 +52,47 @@ The current example endpoint is `CSL\Endpoints\Examples\ExampleList\Controller\E
 
 Controllers extend `CSL\Controller\CslAbstractController`, a thin project base class over Symfony's `AbstractController`.
 
-Endpoint-specific code lives under `src/Endpoints/`. The existing example endpoint also includes `ExampleTransformer`, which demonstrates a response transformer shape for future endpoint response handling.
+Endpoint-specific code lives under `src/Endpoints/`. The existing example endpoint also includes `ExampleTransformer`, which implements the response-transformer contract and is retrieved dynamically for the example route.
+
+### Endpoint Structure Validation
+
+`src/Module/Endpoint/` separates route lookup from response-transformer validation:
+
+- `ControllerClassResolverInterface` resolves a route name through Symfony's route
+  collection and its `_controller` default. The implementation supports controller
+  class names and `Class::method` definitions without constructing controllers.
+  Symfony owns controller existence/callability checks; CSL only extracts the name.
+  The transformer validator checks the naming convention needed to derive the
+  transformer namespace without reflecting or autoloading the controller.
+- `Transformer\Response\Validation\ResponseTransformerValidatorInterface` depends on that resolver abstraction.
+  For `CSL\Endpoints\...\Controller\<Name>Controller`, it checks for a concrete
+  `...\Controller\Transformer\Response\<Name>Transformer` class and returns its
+  class name. Missing routes/classes and invalid conventions raise `LogicException`.
+
+- `Transformer\Response\Provider\ResponseTransformerProviderInterface` retrieves the validated class from a lazy,
+  tagged Symfony service locator. `Transformer\Response\ResponseTransformerInterface` automatically tags
+  implementations and defines content, status, and content-type methods. The provider
+  checks registration and the returned interface; constructor injection remains
+  Symfony's responsibility, without exposing the whole container.
+
+The existing service discovery registers these components. The response subscriber
+injects validator and provider and uses the matched `_route` after its existing guards.
+Absent/invalid route names bypass transformation. Configuration exceptions propagate
+to the existing error pipeline. The validator only checks class presence/concreteness;
+the provider supplies a typed service, and the subscriber executes it. Shared
+transformers should be stateless. Request-transformer, access, and incoming-data
+validation remain separate future responsibilities. No priorities change.
+
+This stage keeps the existing response eligibility rules. Explicit response opt-in
+and preservation of all successful non-API response types from issue #19 remain
+separate work; this integration does not claim to complete those acceptance criteria.
 
 ### Event Layer
 
 Kernel event subscribers live under `src/Events/` and are autoconfigured through Symfony service discovery.
 
 - `CslRequestClientSubscriber` listens on `KernelEvents::REQUEST` with priority `31` and `KernelEvents::FINISH_REQUEST` with priority `-100`. It creates a request UID with UUIDv7, stores a communication client ID on the request, starts a timer through `ClientCommunicatorInterface`, and clears any timer that remains when the main request finishes.
-- `CslResponseInternalSubscriber` listens on `KernelEvents::RESPONSE` with priority `100`. It can transform successful main responses and skips responses that were already marked as CSL error responses.
+- `CslResponseInternalSubscriber` listens on `KernelEvents::RESPONSE` with priority `100`. After the existing main-request, documentation-route, handled-error, and status guards, it validates the matched route and obtains its response transformer from the provider. It skips absent/invalid route names and applies the transformer content, status, and content type.
 - `CslResponseClientSubscriber` listens on `KernelEvents::RESPONSE` with priority `50`. It atomically stops, consumes, and removes the communication timer before logging request and response data.
 - `CslErrorSubscriber` listens on `KernelEvents::EXCEPTION` with the default priority `0`. It logs exception details as critical events, marks the request as handled, and returns a JSON error response.
 - `CslAbstractSubscriber` centralizes shared subscriber state, request-data helpers, request attribute keys, and logger access.
@@ -74,7 +107,7 @@ The intended CSL flow follows the request from the client to an internal service
 | ---: | --- | --- | --- | --- |
 | 1 | `CslRequestClientSubscriber` | Receive the request from the client and initialize request tracking. | Implemented on `kernel.request`. Initializes request/client IDs and starts timing for normal main requests; excludes documentation, profiler, and toolbar routes. | **31** — after Symfony routing at **32**, so `_route` is available for exclusions. |
 | 2 | `CslRequestInternalSubscriber` (planned) | Transform the client request from stage 1 and send it to the internal service. | Not implemented. No event or priority has been registered. | **Not assigned. Proposed: 30** if registered on `kernel.request`, to run after stage 1 at **31**. |
-| 3 | `CslResponseInternalSubscriber` | Receive the internal-service response from stage 2 and transform it into the required structure. | Currently runs on `kernel.response` and applies `ExampleTransformer` to eligible main responses. The stage-2 internal-service integration is not implemented yet. | **100** — before client response logging at **50**, so logging sees the transformed response. |
+| 3 | `CslResponseInternalSubscriber` | Receive the internal-service response from stage 2 and transform it into the required structure. | Runs on `kernel.response`, validates the matched route, and retrieves its response-transformer service dynamically. The stage-2 internal-service integration is not implemented yet. | **100** — before client response logging at **50**, so logging sees the transformed response. |
 | 4 | `CslResponseClientSubscriber` | Complete processing of the response that will be returned to the client. | Implemented on `kernel.response`. Consumes the communication timer and logs request/response data. Symfony sends the resulting response to the client. | **50** — after internal transformation at **100**, so timing and logging include that stage. |
 
 **Why these priorities?** Symfony runs higher numbers first within one event. The ordering constraints matter more than the exact numbers:

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CSL\Events;
 
-use CSL\Endpoints\Examples\ExampleList\Controller\Transformer\Response\ExampleTransformer;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -35,12 +34,16 @@ class CslResponseInternalSubscriber extends CslAbstractSubscriber
             return;
         }
 
-        // TODO: get constraint dynamically.
-        $constraint = new ExampleTransformer();
-        $transformedContent = $constraint->transformContent();
+        $routeName = $request->attributes->get('_route');
+        if (!is_string($routeName) || '' === $routeName) {
+            return;
+        }
+
+        $transformerClass = $this->cslEventsSubscriberDTO->getResponseTransformerValidator()->validate($routeName);
+        $constraint = $this->cslEventsSubscriberDTO->getResponseTransformerProvider()->get($transformerClass);
 
         $response
-            ->setContent($transformedContent)
+            ->setContent($constraint->transformContent())
             ->setStatusCode($constraint->getStatusCode())
             ->headers->set('Content-Type', $constraint->getContentType());
     }
